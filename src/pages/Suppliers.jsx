@@ -12,7 +12,7 @@ import { FiEye } from "react-icons/fi";
 import { toast } from "sonner";
 
 const Suppliers = () => {
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("approved");
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -275,19 +275,6 @@ const Suppliers = () => {
     <div className="">
       <div className="flex space-x-6 border-b border-gray-200 pb-1">
         <button
-          className={`relative px-6 py-2 text-sm font-medium transition-all duration-200 ease-in-out ${
-            activeTab === "pending"
-              ? "text-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setActiveTab("pending")}
-        >
-          Pending Suppliers
-          {activeTab === "pending" && (
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform origin-left transition-transform duration-200 ease-in-out" />
-          )}
-        </button>
-        <button
           className={`relative px-6 py-3 text-sm font-medium transition-all duration-200 ease-in-out ${
             activeTab === "approved"
               ? "text-blue-600"
@@ -297,6 +284,19 @@ const Suppliers = () => {
         >
           Approved Suppliers
           {activeTab === "approved" && (
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform origin-left transition-transform duration-200 ease-in-out" />
+          )}
+        </button>
+        <button
+          className={`relative px-6 py-2 text-sm font-medium transition-all duration-200 ease-in-out ${
+            activeTab === "pending"
+              ? "text-blue-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+          onClick={() => setActiveTab("pending")}
+        >
+          Pending Suppliers
+          {activeTab === "pending" && (
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform origin-left transition-transform duration-200 ease-in-out" />
           )}
         </button>
