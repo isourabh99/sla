@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getSupplierDetails } from "../services/suppliersController";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
-import { FiMapPin, FiPhone, FiMail } from "react-icons/fi";
+import { FiMapPin, FiPhone, FiMail, FiArrowLeft } from "react-icons/fi";
 import { toast } from "sonner";
 
 const SupplierDetails = () => {
@@ -12,6 +12,7 @@ const SupplierDetails = () => {
   const [error, setError] = useState(null);
   const { supplierId } = useParams();
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (supplierId) {
@@ -56,9 +57,16 @@ const SupplierDetails = () => {
 
   return (
     <div className="">
-      <div className="bg-white  shadow-sm overflow-hidden">
+      <div className="bg-white shadow-sm overflow-hidden">
         {/* Header Section */}
         <div className="relative h-30 bg-gray-200">
+          <button
+            onClick={() => navigate("/suppliers")}
+            className="absolute top-4 right-4 p-1.5 rounded-md bg-white/80 hover:bg-white shadow-sm transition-all duration-200 text-gray-600 hover:text-gray-900 backdrop-blur-sm"
+            title="Back to Suppliers"
+          >
+            <FiArrowLeft className="w-4 h-4" />
+          </button>
           <div className="absolute top-6 left-3">
             <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden bg-white">
               <img
@@ -78,27 +86,29 @@ const SupplierDetails = () => {
         {/* Profile Info Section */}
         <div className="p-10 px-4">
           <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {supplier?.name} {supplier?.last_name}
-              </h1>
-              <div className="mt-1 flex items-center space-x-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    supplier?.status === "approved"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {supplier?.status}
-                </span>
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  {supplier?.user_type || "N/A"}
-                </span>
-                <span className="text-sm text-gray-500">
-                  Member since{" "}
-                  {new Date(supplier?.created_at).toLocaleDateString()}
-                </span>
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {supplier?.name} {supplier?.last_name}
+                </h1>
+                <div className="mt-1 flex items-center space-x-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      supplier?.status === "approved"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {supplier?.status}
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    {supplier?.user_type || "N/A"}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Member since{" "}
+                    {new Date(supplier?.created_at).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
