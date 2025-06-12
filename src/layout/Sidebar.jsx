@@ -5,6 +5,7 @@ import {
   FaUserPlus,
   FaSignOutAlt,
   FaUsers,
+  FaUser,
   FaChevronDown,
   FaTag,
   FaPlus,
@@ -19,6 +20,7 @@ import { useAuth } from "../context/AuthContext";
 
 const menuItems = [
   { icon: <FaHome />, label: "Dashboard", path: "/dashboard" },
+  { icon: <FaUser />, label: "Suppliers", path: "/suppliers" },
 ];
 
 const staffMenuItems = [

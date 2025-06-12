@@ -16,6 +16,8 @@ import CreateModel from "./pages/CreateModel";
 import ModelList from "./pages/ModelList";
 import CreateExpertise from "./pages/CreateExpertise";
 import ExpertiseList from "./pages/ExpertiseList";
+import Suppliers from "./pages/Suppliers";
+import SupplierDetails from "./pages/SupplierDetails";
 
 function App() {
   return (
@@ -152,7 +154,26 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/suppliers"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <Suppliers />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/suppliers/:supplierId"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <SupplierDetails />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
