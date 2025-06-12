@@ -156,14 +156,15 @@ const StaffDetails = () => {
       <div className="flex items-center gap-2 mb-6">
         <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
         <h1 className="text-xl font-semibold text-gray-500">
-          Staff Management <span className="text-base">• Edit {formData.name}</span>
+          Staff Management{" "}
+          <span className="text-base">• Edit {formData.name}</span>
         </h1>
       </div>
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2"
+            className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
           >
             <FaEdit />
             {isEditing ? "Cancel Edit" : "Edit Staff"}
@@ -334,7 +335,7 @@ const StaffDetails = () => {
               <button
                 type="submit"
                 disabled={updateLoading}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
               >
                 {updateLoading ? (
                   <>

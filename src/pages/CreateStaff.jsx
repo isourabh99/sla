@@ -349,7 +349,7 @@ const CreateStaff = () => {
                 <motion.button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg hover:from-blue-500 hover:to-indigo-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
+                  className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >

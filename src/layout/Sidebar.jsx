@@ -9,6 +9,10 @@ import {
   FaTag,
   FaPlus,
   FaList,
+  FaGraduationCap,
+  FaBook,
+  FaTags,
+  FaDesktop,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -20,11 +24,19 @@ const menuItems = [
 const staffMenuItems = [
   { icon: <FaUserPlus />, label: "Create Staff", path: "/staff/create" },
   { icon: <FaUsers />, label: "Show Staffs", path: "/staff" },
+  {
+    icon: <FaGraduationCap />,
+    label: "Create Expertise",
+    path: "/expertise/create",
+  },
+  { icon: <FaBook />, label: "Show Expertise", path: "/expertise" },
 ];
 
 const brandsMenuItems = [
   { icon: <FaPlus />, label: "Create Brand", path: "/brands/create" },
-  { icon: <FaList />, label: "Show Brands", path: "/brands" },
+  { icon: <FaTags />, label: "Show Brands", path: "/brands" },
+  { icon: <FaDesktop />, label: "Create Model", path: "/models/create" },
+  { icon: <FaList />, label: "Show Models", path: "/models" },
 ];
 
 const Sidebar = ({ isOpen }) => {
@@ -71,17 +83,17 @@ const Sidebar = ({ isOpen }) => {
     >
       <div className="flex flex-col h-full">
         {/* Navigation Menu */}
-        <nav className="flex-1 p-4 overflow-y-auto mt-16">
-          <ul className="space-y-2">
+        <nav className="flex-1 p-2 overflow-y-auto mt-16">
+          <ul className="space-y-1">
             {menuItems.map((item, index) => (
               <motion.li key={index} variants={menuItemVariants}>
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200
+                  className={`flex items-center gap-2 p-2 rounded-lg transition-all duration-200
                     ${
                       location.pathname === item.path
-                        ? "bg-white/20 text-white"
-                        : "hover:bg-white/10 text-white/80 hover:text-white"
+                        ? "text-white"
+                        : "text-[#d2d5dc] hover:text-white"
                     }
                   `}
                 >
@@ -107,15 +119,15 @@ const Sidebar = ({ isOpen }) => {
               <div className="space-y-1">
                 <button
                   onClick={() => setIsStaffMenuOpen(!isStaffMenuOpen)}
-                  className={`w-full flex items-center justify-between gap-3 p-3 rounded-lg transition-all duration-200
+                  className={`w-full flex items-center justify-between gap-2 p-2 rounded-lg transition-all duration-200
                     ${
                       location.pathname.startsWith("/staff")
-                        ? "bg-white/20 text-white"
-                        : "hover:bg-white/10 text-white/80 hover:text-white"
+                        ? "text-white"
+                        : "text-[#d2d5dc] hover:text-white"
                     }
                   `}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span className="text-xl">
                       <FaUsers />
                     </span>
@@ -151,16 +163,26 @@ const Sidebar = ({ isOpen }) => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <ul className=" space-y-1">
+                      <ul className="space-y-0.5">
                         {staffMenuItems.map((item, index) => (
-                          <motion.li key={index}>
+                          <motion.li key={index} className="relative">
+                            <div
+                              className={`absolute left-0 top-1/2 -translate-y-1/2 w-4 h-[1px] bg-white/20`}
+                            ></div>
+                            <div
+                              className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full ${
+                                location.pathname === item.path
+                                  ? "bg-white"
+                                  : "bg-white/40"
+                              }`}
+                            ></div>
                             <Link
                               to={item.path}
-                              className={`flex items-center gap-3 p-2 rounded-lg transition-all duration-200
+                              className={`flex items-center gap-2 p-1.5 pl-6 rounded-lg transition-all duration-200
                                 ${
                                   location.pathname === item.path
-                                    ? "bg-white/20 text-white"
-                                    : "hover:bg-white/10 text-white/80 hover:text-white"
+                                    ? "text-white"
+                                    : "text-[#d2d5dc] hover:text-white"
                                 }
                               `}
                             >
@@ -181,15 +203,15 @@ const Sidebar = ({ isOpen }) => {
               <div className="space-y-1">
                 <button
                   onClick={() => setIsBrandsMenuOpen(!isBrandsMenuOpen)}
-                  className={`w-full flex items-center justify-between gap-3 p-3 rounded-lg transition-all duration-200
+                  className={`w-full flex items-center justify-between gap-2 p-2 rounded-lg transition-all duration-200
                     ${
                       location.pathname.startsWith("/brands")
-                        ? "bg-white/20 text-white"
-                        : "hover:bg-white/10 text-white/80 hover:text-white"
+                        ? "text-white"
+                        : "text-[#d2d5dc] hover:text-white"
                     }
                   `}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span className="text-xl">
                       <FaTag />
                     </span>
@@ -225,16 +247,24 @@ const Sidebar = ({ isOpen }) => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <ul className="space-y-1">
+                      <ul className="space-y-0.5">
                         {brandsMenuItems.map((item, index) => (
-                          <motion.li key={index}>
+                          <motion.li key={index} className="relative">
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-[1px] bg-white/20"></div>
+                            <div
+                              className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full ${
+                                location.pathname === item.path
+                                  ? "bg-white"
+                                  : "bg-white/40"
+                              }`}
+                            ></div>
                             <Link
                               to={item.path}
-                              className={`flex items-center gap-3 p-2 rounded-lg transition-all duration-200
+                              className={`flex items-center gap-2 p-1.5 pl-6 rounded-lg transition-all duration-200
                                 ${
                                   location.pathname === item.path
-                                    ? "bg-white/20 text-white"
-                                    : "hover:bg-white/10 text-white/80 hover:text-white"
+                                    ? "text-white"
+                                    : "text-[#d2d5dc] hover:text-white"
                                 }
                               `}
                             >
@@ -253,14 +283,14 @@ const Sidebar = ({ isOpen }) => {
         </nav>
 
         {/* Bottom Section */}
-        <div className="p-4 border-t border-white/10">
-          <div className="space-y-2">
+        <div className="p-2 border-t border-white/10">
+          <div className="space-y-1">
             {/* Logout Button */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={logout}
-              className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-red-500/20 text-white/80 hover:text-white transition-all duration-200"
+              className="w-full flex items-center gap-2 p-2 rounded-lg text-[#d2d5dc] hover:text-white transition-all duration-200"
             >
               <FaSignOutAlt className="text-xl" />
               <AnimatePresence>

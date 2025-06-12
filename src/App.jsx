@@ -12,6 +12,10 @@ import { Toaster } from "sonner";
 import CreateBrand from "./pages/CreateBrand";
 import BrandList from "./pages/BrandList";
 import BrandDetails from "./pages/BrandDetails";
+import CreateModel from "./pages/CreateModel";
+import ModelList from "./pages/ModelList";
+import CreateExpertise from "./pages/CreateExpertise";
+import ExpertiseList from "./pages/ExpertiseList";
 
 function App() {
   return (
@@ -104,6 +108,46 @@ function App() {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <BrandDetails />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/models/create"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <CreateModel />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/models"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <ModelList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/expertise/create"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <CreateExpertise />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/expertise"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <ExpertiseList />
               </Layout>
             </ProtectedRoute>
           }

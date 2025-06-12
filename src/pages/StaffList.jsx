@@ -4,7 +4,7 @@ import { getStaffs } from "../services/staffController";
 import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
-
+import { FiEdit2 } from "react-icons/fi";
 const StaffList = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,17 +120,15 @@ const StaffList = () => {
       key: "actions",
       label: "Actions",
       render: (row) => (
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/staff/${row.id}`);
-            }}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            View Details
-          </button>
-        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/staff/${row.id}`);
+          }}
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+        >
+          <FiEdit2 className="w-3.5 h-3.5" />
+        </button>
       ),
     },
   ];

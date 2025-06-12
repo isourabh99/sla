@@ -252,7 +252,7 @@ const Profile = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setIsChangingPassword(!isChangingPassword)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg hover:from-blue-500 hover:to-indigo-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded   flex items-center gap-2"
                 >
                   <FaLock className="text-lg" />
                   <span className="text-sm">
@@ -261,7 +261,7 @@ const Profile = () => {
                 </button>
                 <button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-400 to-teal-500 text-white rounded-lg hover:from-emerald-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
                 >
                   <FaUserEdit className="text-lg" />
                   <span className="text-sm">
@@ -374,23 +374,9 @@ const Profile = () => {
 
                   <div className="flex justify-end space-x-4">
                     <button
-                      type="button"
-                      onClick={() => {
-                        setIsChangingPassword(false);
-                        setShowPasswords({
-                          current_password: false,
-                          password: false,
-                          confirm_password: false,
-                        });
-                      }}
-                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
                       type="submit"
                       disabled={updating}
-                      className="px-6 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg hover:from-blue-500 hover:to-indigo-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
+                      className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
                     >
                       {updating ? (
                         <>
@@ -442,16 +428,9 @@ const Profile = () => {
 
                   <div className="flex justify-end space-x-4">
                     <button
-                      type="button"
-                      onClick={() => setIsEditing(false)}
-                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
                       type="submit"
                       disabled={updating}
-                      className="px-6 py-2 bg-gradient-to-r from-emerald-400 to-teal-500 text-white rounded-lg hover:from-emerald-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2"
+                      className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
                     >
                       {updating ? (
                         <>

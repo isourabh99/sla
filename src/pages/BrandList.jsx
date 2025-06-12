@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getBrands, deleteBrand } from "../services/brandController";
 import { useNavigate, Link } from "react-router-dom";
-import { FaSearch, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaSearch, FaTrash, FaPlus } from "react-icons/fa";
+import { FiEdit2 } from "react-icons/fi";
 import Loader from "../components/Loader";
 import { toast } from "sonner";
 
@@ -174,7 +175,7 @@ const BrandList = () => {
                     className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
                     title="Edit Brand"
                   >
-                    <FaEdit className="w-3.5 h-3.5" />
+                    <FiEdit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => handleDeleteBrand(brand.id)}
