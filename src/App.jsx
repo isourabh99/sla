@@ -16,7 +16,7 @@ import CreateModel from "./pages/CreateModel";
 import ModelList from "./pages/ModelList";
 import CreateExpertise from "./pages/CreateExpertise";
 import ExpertiseList from "./pages/ExpertiseList";
-import Suppliers from "./pages/Suppliers";
+import SuppliersList from "./pages/SuppliersList";
 import SupplierDetails from "./pages/SupplierDetails";
 
 function App() {
@@ -159,7 +159,7 @@ function App() {
           element={
             <ProtectedRoute requireAdmin>
               <Layout>
-                <Suppliers />
+                <SuppliersList />
               </Layout>
             </ProtectedRoute>
           }

@@ -11,7 +11,7 @@ import Loader from "../components/Loader";
 import { FiEye } from "react-icons/fi";
 import { toast } from "sonner";
 
-const Suppliers = () => {
+const SuppliersList = () => {
   const [activeTab, setActiveTab] = useState("approved");
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,9 +88,7 @@ const Suppliers = () => {
       label: "Location",
       render: (row) => (
         <div>
-          <div className="text-sm text-gray-900">
-            {row.address || null}
-          </div>
+          <div className="text-sm text-gray-900">{row.address || null}</div>
           <div className="text-sm text-gray-500">
             {[row.city, row.state, row.country].filter(Boolean).join(", ")}
           </div>
@@ -326,4 +324,4 @@ const Suppliers = () => {
   );
 };
 
-export default Suppliers;
+export default SuppliersList;
