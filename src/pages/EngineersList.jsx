@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  getPendingSuppliers,
-  getApprovedSuppliers,
-  updateSupplierStatus,
-} from "../services/suppliersController";
+  getPendingEngineers,
+  getApprovedEngineers,
+  updateEngineerStatus,
+} from "../services/engineersController";
 import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
 import { FiEye } from "react-icons/fi";
 import { toast } from "sonner";
 
-const SuppliersList = () => {
+const EngineersList = () => {
   const [activeTab, setActiveTab] = useState("approved");
-  const [suppliers, setSuppliers] = useState([]);
+  const [engineers, setEngineers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -95,26 +95,7 @@ const SuppliersList = () => {
         </div>
       ),
     },
-    {
-      key: "brands",
-      label: "Brands",
-      render: (row) => (
-        <div className="flex flex-wrap gap-1">
-          {row.brand && row.brand.length > 0 ? (
-            row.brand.map((brand) => (
-              <span
-                key={brand.id}
-                className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full"
-              >
-                {brand.name}
-              </span>
-            ))
-          ) : (
-            <span className="text-sm text-gray-500">No brands</span>
-          )}
-        </div>
-      ),
-    },
+  
     {
       key: "status",
       label: "Status",
@@ -147,7 +128,7 @@ const SuppliersList = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/suppliers/${row.id}`);
+              navigate(`/engineers/${row.id}`);
             }}
             className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
           >
@@ -169,16 +150,16 @@ const SuppliersList = () => {
     },
   ];
 
-  const fetchSuppliers = async (page = 1) => {
+  const fetchEngineers = async (page = 1) => {
     try {
       setLoading(true);
       const data =
         activeTab === "pending"
-          ? await getPendingSuppliers(token, page)
-          : await getApprovedSuppliers(token, page);
+          ? await getPendingEngineers(token, page)
+          : await getApprovedEngineers(token, page);
 
       if (data.status && data.data) {
-        setSuppliers(data.data.data);
+        setEngineers(data.data.data);
         setPagination({
           current_page: data.data.current_page,
           last_page: data.data.last_page,
@@ -189,34 +170,34 @@ const SuppliersList = () => {
       }
       setError(null);
     } catch (err) {
-      setError(err.message || "Failed to fetch suppliers list");
-      setSuppliers([]);
+      setError(err.message || "Failed to fetch engineers list");
+      setEngineers([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSuppliers(1);
+    fetchEngineers(1);
   }, [token, activeTab]);
 
-  const handleStatusUpdate = async (supplierId, status) => {
+  const handleStatusUpdate = async (engineerId, status) => {
     try {
-      await updateSupplierStatus(token, supplierId, status);
-      toast.success("Supplier status updated successfully");
-      fetchSuppliers(pagination.current_page); // Refresh current page
+      await updateEngineerStatus(token, engineerId, status);
+      toast.success("Engineer status updated successfully");
+      fetchEngineers(pagination.current_page); // Refresh current page
     } catch (err) {
-      toast.error(err.message || "Failed to update supplier status");
+      toast.error(err.message || "Failed to update engineer status");
     }
   };
 
   const handlePageChange = (page) => {
-    fetchSuppliers(page);
+    fetchEngineers(page);
   };
 
   const handleRowClick = (row) => {
     if (row && row.id) {
-      navigate(`/suppliers/${row.id}`);
+      navigate(`/engineers/${row.id}`);
     }
   };
 
@@ -280,8 +261,7 @@ const SuppliersList = () => {
               : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
           }`}
         >
-          Approved Suppliers
-         
+          Approved Engineers
         </button>
         <button
           onClick={() => setActiveTab("pending")}
@@ -291,8 +271,7 @@ const SuppliersList = () => {
               : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
           }`}
         >
-          Pending Suppliers
-         
+          Pending Engineers
         </button>
       </div>
 
@@ -301,23 +280,23 @@ const SuppliersList = () => {
       ) : (
         <>
           <DataTable
-            title="Suppliers Management"
+            title="Engineers Management"
             subtitle={`${
               activeTab === "pending" ? "Pending" : "Approved"
-            } Suppliers List`}
+            } Engineers List`}
             columns={columns}
-            data={suppliers}
+            data={engineers}
             loading={loading}
             error={error}
             onRowClick={handleRowClick}
             pagination={pagination}
             onPageChange={handlePageChange}
           />
-          {!error && suppliers.length > 0 && renderPagination()}
+          {!error && engineers.length > 0 && renderPagination()}
         </>
       )}
     </div>
   );
 };
 
-export default SuppliersList;
+export default EngineersList;

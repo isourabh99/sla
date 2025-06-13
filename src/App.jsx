@@ -18,6 +18,9 @@ import CreateExpertise from "./pages/CreateExpertise";
 import ExpertiseList from "./pages/ExpertiseList";
 import SuppliersList from "./pages/SuppliersList";
 import SupplierDetails from "./pages/SupplierDetails";
+import EngineersList from "./pages/EngineersList";
+import EngineerDetails from "./pages/EngineerDetails";
+import EditEngineer from "./pages/EditEngineer";
 
 function App() {
   return (
@@ -170,6 +173,36 @@ function App() {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <SupplierDetails />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/engineers"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <EngineersList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/engineers/:engineerId"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <EngineerDetails />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/engineers/:engineerId/edit"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <EditEngineer />
               </Layout>
             </ProtectedRoute>
           }
