@@ -21,6 +21,9 @@ import SupplierDetails from "./pages/SupplierDetails";
 import EngineersList from "./pages/EngineersList";
 import EngineerDetails from "./pages/EngineerDetails";
 import EditEngineer from "./pages/EditEngineer";
+import PartnersList from "./pages/PartnersList";
+import PartnerDetails from "./pages/PartnerDetails";
+import EditPartner from "./pages/EditPartner";
 
 function App() {
   return (
@@ -203,6 +206,36 @@ function App() {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <EditEngineer />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/partners"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <PartnersList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/partners/:partnerId"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <PartnerDetails />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/partners/:partnerId/edit"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <EditPartner />
               </Layout>
             </ProtectedRoute>
           }

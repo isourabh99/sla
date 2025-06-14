@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  getEngineerDetails,
-  updateEngineer,
-} from "../services/engineersController";
+  getPartnerDetails,
+  updatePartner,
+} from "../services/partnersController";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
@@ -36,8 +36,8 @@ const InputField = ({ icon: Icon, type = "text", label, ...props }) => (
   </div>
 );
 
-const EditEngineer = () => {
-  const [engineer, setEngineer] = useState(null);
+const EditPartner = () => {
+  const [partner, setPartner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -49,13 +49,13 @@ const EditEngineer = () => {
     state: "",
     country: "",
     address: "",
-    engineer_id: "",
+    partner_id: "",
     password: "",
     password_confirmation: "",
   });
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const { engineerId } = useParams();
+  const { partnerId } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
   const [showPasswords, setShowPasswords] = useState({
@@ -64,17 +64,17 @@ const EditEngineer = () => {
   });
 
   useEffect(() => {
-    if (engineerId) {
-      fetchEngineerDetails();
+    if (partnerId) {
+      fetchPartnerDetails();
     }
-  }, [engineerId, token]);
+  }, [partnerId, token]);
 
-  const fetchEngineerDetails = async () => {
+  const fetchPartnerDetails = async () => {
     try {
       setLoading(true);
-      const response = await getEngineerDetails(token, engineerId);
+      const response = await getPartnerDetails(token, partnerId);
       if (response && response.status && response.data) {
-        setEngineer(response.data);
+        setPartner(response.data);
         setFormData({
           name: response.data.name || "",
           last_name: response.data.last_name || "",
@@ -84,7 +84,7 @@ const EditEngineer = () => {
           state: response.data.state || "",
           country: response.data.country || "",
           address: response.data.address || "",
-          engineer_id: engineerId,
+          partner_id: partnerId,
           password: "",
           password_confirmation: "",
         });
@@ -92,9 +92,9 @@ const EditEngineer = () => {
       }
       setError(null);
     } catch (err) {
-      console.error("Error fetching engineer:", err);
-      setError(err.message || "Failed to fetch engineer details");
-      toast.error(err.message || "Failed to fetch engineer details");
+      console.error("Error fetching partner:", err);
+      setError(err.message || "Failed to fetch partner details");
+      toast.error(err.message || "Failed to fetch partner details");
     } finally {
       setLoading(false);
     }
@@ -141,10 +141,10 @@ const EditEngineer = () => {
         formDataToSend.append("profile_picture", profilePicture);
       }
 
-      const response = await updateEngineer(token, formDataToSend);
+      const response = await updatePartner(token, formDataToSend);
       if (response.status) {
-        toast.success("Engineer details updated successfully");
-        navigate(`/engineers/${engineerId}`);
+        toast.success("Partner details updated successfully");
+        navigate(`/partners/${partnerId}`);
       }
     } catch (err) {
       console.error("Update error:", err);
@@ -156,7 +156,7 @@ const EditEngineer = () => {
           toast.error(`${field}: ${error}`);
         });
       } else {
-        toast.error(err.message || "Failed to update engineer details");
+        toast.error(err.message || "Failed to update partner details");
       }
     } finally {
       setLoading(false);
@@ -174,12 +174,12 @@ const EditEngineer = () => {
     return <Loader size="large" fullScreen />;
   }
 
-  if (error || !engineer) {
+  if (error || !partner) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-            {error || "Engineer not found"}
+            {error || "Partner not found"}
           </h2>
           <p className="text-gray-600">Please try again later</p>
         </div>
@@ -192,10 +192,13 @@ const EditEngineer = () => {
       <div className="flex items-center gap-2 mb-6">
         <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
         <h1 className="text-xl font-semibold text-gray-500">
-          Engineer Management <span className="text-base">• Update your profile {engineer.name}</span>
+          Partner Management{" "}
+          <span className="text-base">
+            • Update your profile {partner.name}
+          </span>
         </h1>
         <Link
-          to={`/engineers/${engineerId}`}
+          to={`/partners/${partnerId}`}
           className="ml-auto flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
           <FiArrowLeft className="w-4 h-4" />
@@ -212,10 +215,10 @@ const EditEngineer = () => {
                 src={
                   previewImage ||
                   "https://ui-avatars.com/api/?name=" +
-                    encodeURIComponent(engineer?.name || "User") +
+                    encodeURIComponent(partner?.name || "User") +
                     "&background=random&size=150"
                 }
-                alt={engineer?.name}
+                alt={partner?.name}
                 className="h-full w-full object-cover "
               />
             </div>
@@ -384,7 +387,7 @@ const EditEngineer = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
+            className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded flex items-center gap-2"
             disabled={loading}
           >
             <FiSave className="w-4 h-4" />
@@ -396,4 +399,4 @@ const EditEngineer = () => {
   );
 };
 
-export default EditEngineer;
+export default EditPartner;

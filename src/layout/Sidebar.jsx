@@ -21,7 +21,9 @@ import { useAuth } from "../context/AuthContext";
 const menuItems = [
   { icon: <FaHome />, label: "Dashboard", path: "/dashboard" },
   { icon: <FaUser />, label: "Suppliers", path: "/suppliers" },
+  { icon: <FaUser />, label: "Partners", path: "/partners" },
   { icon: <FaGraduationCap />, label: "Engineers", path: "/engineers" },
+
 ];
 
 const staffMenuItems = [
