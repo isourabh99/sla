@@ -24,6 +24,7 @@ import EditEngineer from "./pages/EditEngineer";
 import PartnersList from "./pages/PartnersList";
 import PartnerDetails from "./pages/PartnerDetails";
 import EditPartner from "./pages/EditPartner";
+import BusinessSettings from "./pages/BusinessSettings";
 
 function App() {
   return (
@@ -240,6 +241,19 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Business Settings Route */}
+        <Route
+          path="/business-settings"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <BusinessSettings />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>

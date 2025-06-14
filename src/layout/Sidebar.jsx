@@ -14,6 +14,7 @@ import {
   FaBook,
   FaTags,
   FaDesktop,
+  FaCog,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -23,7 +24,6 @@ const menuItems = [
   { icon: <FaUser />, label: "Suppliers", path: "/suppliers" },
   { icon: <FaUser />, label: "Partners", path: "/partners" },
   { icon: <FaGraduationCap />, label: "Engineers", path: "/engineers" },
-
 ];
 
 const staffMenuItems = [
@@ -284,6 +284,38 @@ const Sidebar = ({ isOpen }) => {
                 </AnimatePresence>
               </div>
             </motion.li>
+
+            {/* Business Settings */}
+            {/* <div className="">
+              <motion.li variants={menuItemVariants}>
+                <Link
+                  to="/business-settings"
+                  className={`flex items-center gap-2 p-2 rounded-lg transition-all duration-200
+                    ${
+                      location.pathname === "/business-settings"
+                        ? "text-white"
+                        : "text-[#d2d5dc] hover:text-white"
+                    }
+                  `}
+                >
+                  <span className="text-xl">
+                    <FaCog />
+                  </span>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="font-medium"
+                      >
+                        Business Settings
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Link>
+              </motion.li>
+            </div> */}
           </ul>
         </nav>
 
