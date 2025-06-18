@@ -95,26 +95,26 @@ const SuppliersList = () => {
         </div>
       ),
     },
-    {
-      key: "brands",
-      label: "Brands",
-      render: (row) => (
-        <div className="flex flex-wrap gap-1">
-          {row.brand && row.brand.length > 0 ? (
-            row.brand.map((brand) => (
-              <span
-                key={brand.id}
-                className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full"
-              >
-                {brand.name}
-              </span>
-            ))
-          ) : (
-            <span className="text-sm text-gray-500">No brands</span>
-          )}
-        </div>
-      ),
-    },
+    // {
+    //   key: "brands",
+    //   label: "Brands",
+    //   render: (row) => (
+    //     <div className="flex flex-wrap gap-1">
+    //       {row.brand && row.brand.length > 0 ? (
+    //         row.brand.map((brand) => (
+    //           <span
+    //             key={brand.id}
+    //             className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full"
+    //           >
+    //             {brand.name}
+    //           </span>
+    //         ))
+    //       ) : (
+    //         <span className="text-sm text-gray-500">No brands</span>
+    //       )}
+    //     </div>
+    //   ),
+    // },
     {
       key: "status",
       label: "Status",

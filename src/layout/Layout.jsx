@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
       {/* Main Content (scrollable) */}
       <div
         className={`overflow-y-auto bg-gray-50 mt-8 relative z-10 ${
-          isSidebarOpen ? "ml-[260px]" : ""
+          isSidebarOpen ? "ml-[260px]" : "ml-0"
         }`}
       >
         {children}

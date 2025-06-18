@@ -25,6 +25,8 @@ import PartnersList from "./pages/PartnersList";
 import PartnerDetails from "./pages/PartnerDetails";
 import EditPartner from "./pages/EditPartner";
 import BusinessSettings from "./pages/BusinessSettings";
+import Quotations from "./pages/Quotations";
+import QuotationDetails from "./pages/QuotationDetails";
 
 function App() {
   return (
@@ -249,6 +251,29 @@ function App() {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <BusinessSettings />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Quotations Routes */}
+        <Route
+          path="/quotations"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <Quotations />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quotations/:quotationId"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <QuotationDetails />
               </Layout>
             </ProtectedRoute>
           }

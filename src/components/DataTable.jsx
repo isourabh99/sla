@@ -69,7 +69,7 @@ const DataTable = ({
                 {columns.map((column) => (
                   <td
                     key={`${row._id}-${column.key}`}
-                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                    className="px-6 py-2 whitespace-nowrap text-xs text-gray-900"
                   >
                     {column.render
                       ? column.render(row, index)
@@ -82,7 +82,7 @@ const DataTable = ({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-6 py-4 text-center text-sm text-gray-500"
+                  className="px-6 py-2 text-center text-xs text-gray-500"
                 >
                   No data available
                 </td>

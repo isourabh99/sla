@@ -15,6 +15,7 @@ import {
   FaTags,
   FaDesktop,
   FaCog,
+  FaFileInvoiceDollar,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -24,6 +25,7 @@ const menuItems = [
   { icon: <FaUser />, label: "Suppliers", path: "/suppliers" },
   { icon: <FaUser />, label: "Partners", path: "/partners" },
   { icon: <FaGraduationCap />, label: "Engineers", path: "/engineers" },
+  { icon: <FaFileInvoiceDollar />, label: "Quotations", path: "/quotations" },
 ];
 
 const staffMenuItems = [
@@ -286,7 +288,7 @@ const Sidebar = ({ isOpen }) => {
             </motion.li>
 
             {/* Business Settings */}
-            {/* <div className="">
+            <div className="">
               <motion.li variants={menuItemVariants}>
                 <Link
                   to="/business-settings"
@@ -315,7 +317,7 @@ const Sidebar = ({ isOpen }) => {
                   </AnimatePresence>
                 </Link>
               </motion.li>
-            </div> */}
+            </div>
           </ul>
         </nav>
 

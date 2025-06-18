@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
 import { FiEdit2 } from "react-icons/fi";
+import defaultDp from "../assets/deafultdp.jpg";
 const StaffList = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,22 +28,22 @@ const StaffList = () => {
         <div className="text-sm font-mono text-gray-500">#{row.id}</div>
       ),
     },
-    {
-      key: "brand_id",
-      label: "Brand ID",
-      render: (row) => (
-        <div className="text-sm font-mono text-gray-500">
-          {row.brand_id ? `#${row.brand_id}` : "-"}
-        </div>
-      ),
-    },
+    // {
+    //   key: "brand_id",
+    //   label: "Brand ID",
+    //   render: (row) => (
+    //     <div className="text-sm font-mono text-gray-500">
+    //       {row.brand_id ? `#${row.brand_id}` : "-"}
+    //     </div>
+    //   ),
+    // },
     {
       key: "profile_picture",
       label: "Profile",
       render: (row) => (
         <div className="flex items-center">
           <img
-            src={row.profile_picture || "https://via.placeholder.com/40"}
+            src={row.profile_picture || defaultDp}
             alt={row.name}
             className="h-10 w-10 rounded-full object-cover"
           />
@@ -92,21 +93,21 @@ const StaffList = () => {
         </span>
       ),
     },
-    {
-      key: "status",
-      label: "Status",
-      render: (row) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            row.status === "active"
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {row.status || "Pending"}
-        </span>
-      ),
-    },
+    // {
+    //   key: "status",
+    //   label: "Status",
+    //   render: (row) => (
+    //     <span
+    //       className={`px-2 py-1 rounded-full text-xs font-semibold ${
+    //         row.status === "active"
+    //           ? "bg-green-100 text-green-800"
+    //           : "bg-gray-100 text-gray-800"
+    //       }`}
+    //     >
+    //       {row.status || "Pending"}
+    //     </span>
+    //   ),
+    // },
     {
       key: "created_at",
       label: "Joined",
