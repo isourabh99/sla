@@ -27,6 +27,7 @@ import EditPartner from "./pages/EditPartner";
 import BusinessSettings from "./pages/BusinessSettings";
 import Quotations from "./pages/Quotations";
 import QuotationDetails from "./pages/QuotationDetails";
+import SpareParts from "./pages/SpareParts";
 
 function App() {
   return (
@@ -274,6 +275,18 @@ function App() {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <QuotationDetails />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Spare Parts Route */}
+        <Route
+          path="/spareparts"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <SpareParts />
               </Layout>
             </ProtectedRoute>
           }

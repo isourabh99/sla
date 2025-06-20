@@ -48,11 +48,11 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
     <header className="bg-gradient-to-r from-[#387DB2] to-[#3D356E] p-2 text-white">
       <div className="mx-auto flex justify-between items-center">
         <div className="flex items-center gap-24">
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <motion.div className="flex items-center justify-center">
               <img src={logo} alt="logo" className="w-32 brightness-0 invert" />
             </motion.div>
-          </div>
+          </div> */}
           <button
             onClick={toggleSidebar}
             className="p-2 rounded-full hover:bg-white/10 "

@@ -38,8 +38,8 @@ const DataTable = ({
       {title && (
         <div className="flex items-center gap-2 mb-6">
           <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
-          <h1 className="text-xl font-semibold text-gray-500">
-            {title} <span className="text-base">• {subtitle}</span>
+          <h1 className="text-xs md:text-xl font-semibold text-gray-500">
+            {title} <span className="">• {subtitle}</span>
           </h1>
         </div>
       )}

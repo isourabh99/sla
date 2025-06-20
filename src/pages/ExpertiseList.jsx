@@ -55,13 +55,13 @@ const ExpertiseList = () => {
         <div className="font-medium text-gray-900">{row.name}</div>
       ),
     },
-    {
-      key: "type",
-      label: "Type",
-      render: (row) => (
-        <div className="text-sm text-gray-500">{row.type || "-"}</div>
-      ),
-    },
+    // {
+    //   key: "type",
+    //   label: "Type",
+    //   render: (row) => (
+    //     <div className="text-sm text-gray-500">{row.type || "-"}</div>
+    //   ),
+    // },
     {
       key: "created_at",
       label: "Created",

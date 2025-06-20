@@ -145,6 +145,17 @@ const PartnersList = () => {
               Approve
             </button>
           )}
+          {activeTab === "approved" && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStatusUpdate(row.id, "pending");
+              }}
+              className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-colors duration-200 text-sm"
+            >
+              Set to Pending
+            </button>
+          )}
         </div>
       ),
     },

@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
 import { FiMapPin, FiPhone, FiMail, FiArrowLeft } from "react-icons/fi";
 import { toast } from "sonner";
+import defaultSparePartImg from "../assets/defaultspare.jpg";
 
 const SupplierDetails = () => {
   const [supplier, setSupplier] = useState(null);
@@ -199,6 +200,86 @@ const SupplierDetails = () => {
               ) : (
                 <p className="text-gray-500 col-span-full">
                   No brands associated
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Spare Parts Section */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Spare Parts
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {supplier?.spare_parts && supplier.spare_parts.length > 0 ? (
+                supplier.spare_parts.map((part, idx) => {
+                  // Cycle through pastel bg colors
+                  const bgColors = [
+                    "bg-pink-50",
+                    "bg-blue-50",
+                    "bg-green-50",
+                    "bg-yellow-50",
+                    "bg-purple-50",
+                  ];
+                  const cardBg = bgColors[idx % bgColors.length];
+                  return (
+                    <div
+                      key={part.id}
+                      className={`${cardBg} rounded-xl p-5 flex flex-col items-start space-y-3 shadow transition-transform duration-200 border border-gray-200 hover:scale-105 hover:shadow-lg`}
+                    >
+                      <div className="flex items-center space-x-3 mb-3 w-full">
+                        {/* Brand Image */}
+                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-white border">
+                          <img
+                            src={part.brand?.image || defaultSparePartImg}
+                            alt={part.brand?.name || "Brand"}
+                            className="h-full w-full object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = defaultSparePartImg;
+                            }}
+                          />
+                        </div>
+                        {/* Spare Part Image */}
+                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-white border">
+                          <img
+                            src={part.image || defaultSparePartImg}
+                            alt={part.name}
+                            className="h-full w-full object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = defaultSparePartImg;
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="w-full">
+                        <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                          {part.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <span className="font-medium">Brand:</span>{" "}
+                          {part.brand?.name || "N/A"}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <span className="font-medium">Description:</span>{" "}
+                          {part.description || "No description"}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <span className="font-medium">Price:</span>{" "}
+                          {part.price ? `₹${part.price}` : "N/A"}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-2">
+                          Added on{" "}
+                          {new Date(part.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-gray-500 col-span-full">
+                  No spare parts available
                 </p>
               )}
             </div>
