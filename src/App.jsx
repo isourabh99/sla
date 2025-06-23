@@ -28,6 +28,8 @@ import BusinessSettings from "./pages/BusinessSettings";
 import Quotations from "./pages/Quotations";
 import QuotationDetails from "./pages/QuotationDetails";
 import SpareParts from "./pages/SpareParts";
+import ContactQueries from "./pages/ContactQueries";
+import Notifications from "./pages/Notifications";
 
 function App() {
   return (
@@ -282,7 +284,7 @@ function App() {
 
         {/* Spare Parts Route */}
         <Route
-          path="/spareparts"
+          path="/spare-parts"
           element={
             <ProtectedRoute requireAdmin>
               <Layout>
@@ -291,9 +293,31 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/contact-queries"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <ContactQueries />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Default Route */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Notifications Route */}
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <Notifications />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect to dashboard for any other route */}
+        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </AuthProvider>
   );

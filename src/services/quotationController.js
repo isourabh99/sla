@@ -129,3 +129,25 @@ export const getOffersByQuotation = async (token, quotationId) => {
     throw error.response?.data || error.message;
   }
 };
+
+// Update offer status
+export const updateOfferStatus = async (token, quotationOfferId, status) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/admin/quotation/updateOfferStatus`,
+      {
+        quotation_offer_id: quotationOfferId,
+        status: status,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};

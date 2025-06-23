@@ -1,0 +1,259 @@
+SLA BUSINESS MANAGEMENT SYSTEM - TERMS AND CONDITIONS
+
+Last Updated: [Current Date]
+
+1. ACCEPTANCE OF TERMS
+
+By accessing and using the SLA Business Management System ("the Service"), including its mobile application and web-based admin panel, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services.
+
+2. SERVICE DESCRIPTION
+
+The SLA Business Management System provides comprehensive business management solutions including:
+
+2.1 Business Management Features:
+- Brand and product model management
+- Staff and employee management
+- Partner and supplier management
+- Engineer and expertise tracking
+- Quotation and proposal management
+- Spare parts inventory management
+- Contact and inquiry management
+
+2.2 Service Access:
+- Web-based admin panel for business administrators
+- Mobile application for end users and staff
+- API integration for third-party systems
+
+3. USER ACCOUNTS AND REGISTRATION
+
+3.1 Account Types:
+- Admin Accounts: Full system access for business administrators
+- Staff Accounts: Limited access based on role permissions
+- Partner Accounts: External partner access with specific privileges
+- Engineer Accounts: Technical staff with specialized access
+
+3.2 Registration Requirements:
+- Provide accurate, current, and complete information
+- Maintain confidentiality of account credentials
+- Notify immediately of any unauthorized access
+- One account per individual user
+
+3.3 Account Security:
+- Users are responsible for maintaining account security
+- Passwords must be strong and unique
+- Two-factor authentication recommended where available
+- Regular password updates required
+
+4. ACCEPTABLE USE POLICY
+
+4.1 Permitted Use:
+- Business management and administrative tasks
+- Data entry and record keeping
+- Communication with partners and suppliers
+- Inventory and quotation management
+- Staff and resource coordination
+
+4.2 Prohibited Activities:
+- Unauthorized access to other users' accounts
+- Uploading malicious software or harmful content
+- Attempting to disrupt system functionality
+- Sharing account credentials with unauthorized persons
+- Using the service for illegal activities
+- Reverse engineering or attempting to copy the system
+
+5. DATA MANAGEMENT AND PRIVACY
+
+5.1 Data Ownership:
+- Business data uploaded by users remains their property
+- SLA Business Management System retains rights to aggregated, anonymized data
+- Users grant license to store and process their data for service provision
+
+5.2 Data Security:
+- Industry-standard encryption for data transmission
+- Secure data storage with regular backups
+- Access controls and authentication measures
+- Regular security audits and updates
+
+5.3 Data Retention:
+- Active account data retained during service period
+- Deleted account data removed within 30 days
+- Legal compliance data retained as required by law
+- Backup data retained for disaster recovery
+
+5.4 Data Usage:
+- Service improvement and analytics (anonymized)
+- Customer support and troubleshooting
+- Legal compliance and regulatory requirements
+- System maintenance and updates
+
+6. BUSINESS MANAGEMENT FEATURES
+
+6.1 Brand and Model Management:
+- Create and manage product brands
+- Add product models under brands
+- Upload brand images and documentation
+- Track brand performance and metrics
+
+6.2 Staff Management:
+- Employee profile creation and management
+- Role-based access control
+- Performance tracking and reporting
+- Communication and collaboration tools
+
+6.3 Partner and Supplier Management:
+- Partner registration and approval process
+- Supplier information and contact management
+- Partnership agreement tracking
+- Performance evaluation and ratings
+
+6.4 Quotation Management:
+- Create and manage business quotations
+- Track quotation status and responses
+- Generate reports and analytics
+- Integration with customer management
+
+6.5 Inventory Management:
+- Spare parts tracking and management
+- Stock level monitoring and alerts
+- Purchase order management
+- Inventory reporting and analytics
+
+7. PAYMENT AND SUBSCRIPTION TERMS
+
+7.1 Service Fees:
+- Subscription-based pricing model
+- Different tiers based on features and users
+- Annual or monthly payment options
+- Enterprise pricing for large organizations
+
+7.2 Payment Processing:
+- Secure payment gateway integration
+- Multiple payment method support
+- Automatic billing and renewal
+- Invoice generation and management
+
+7.3 Refund Policy:
+- 30-day money-back guarantee for new subscriptions
+- Pro-rated refunds for annual plans
+- No refunds for monthly plans after 7 days
+- Enterprise contracts subject to separate terms
+
+8. SERVICE AVAILABILITY AND SUPPORT
+
+8.1 Uptime Commitment:
+- 99.9% uptime target for core services
+- Scheduled maintenance with advance notice
+- Emergency maintenance when necessary
+- Status page for real-time updates
+
+8.2 Technical Support:
+- Email support for all users
+- Phone support for premium subscribers
+- Live chat for urgent issues
+- Knowledge base and documentation
+
+8.3 Updates and Maintenance:
+- Regular feature updates and improvements
+- Security patches and bug fixes
+- System maintenance during off-peak hours
+- Advance notification for major changes
+
+9. INTELLECTUAL PROPERTY RIGHTS
+
+9.1 Service Ownership:
+- SLA Business Management System and its components are proprietary
+- Copyright, trademark, and trade secret protection
+- No transfer of ownership to users
+- License granted for service use only
+
+9.2 User Content:
+- Users retain ownership of their business data
+- License granted to SLA for service provision
+- No claim to user-generated content
+- Respect for user intellectual property
+
+10. LIMITATION OF LIABILITY
+
+10.1 Service Disclaimer:
+- Service provided "as is" without warranties
+- No guarantee of uninterrupted access
+- Data loss protection through backups
+- User responsibility for data accuracy
+
+10.2 Liability Limits:
+- Maximum liability limited to annual subscription fee
+- No liability for indirect or consequential damages
+- Force majeure events excluded
+- User indemnification for misuse
+
+11. TERMINATION AND CANCELLATION
+
+11.1 Account Termination:
+- User-initiated cancellation at any time
+- Service termination for terms violation
+- Data export available upon termination
+- Account deactivation after 30 days
+
+11.2 Data Handling:
+- 30-day grace period for data recovery
+- Permanent deletion after grace period
+- Legal compliance data retention
+- Export options for business continuity
+
+12. GOVERNING LAW AND DISPUTES
+
+12.1 Jurisdiction:
+- Terms governed by [Your Country] law
+- Disputes resolved in [Your City] courts
+- Alternative dispute resolution available
+- Class action waiver
+
+12.2 Dispute Resolution:
+- Informal resolution attempts first
+- Mediation for unresolved disputes
+- Arbitration for binding resolution
+- Court action as last resort
+
+13. CHANGES TO TERMS
+
+13.1 Modification Rights:
+- Terms may be updated periodically
+- 30-day notice for material changes
+- Continued use constitutes acceptance
+- Opt-out available for significant changes
+
+13.2 Notification:
+- Email notification of changes
+- In-app notifications for updates
+- Website posting of current terms
+- Version tracking and history
+
+14. CONTACT INFORMATION
+
+For questions, support, or concerns about these terms:
+
+SLA Business Management System
+Email: [Your Business Email]
+Phone: [Your Business Phone]
+Address: [Your Business Address]
+Website: [Your Website]
+
+15. SEVERABILITY AND ENTIRE AGREEMENT
+
+15.1 Severability:
+- Invalid provisions do not affect remaining terms
+- Court modification of invalid terms
+- Enforceability of remaining provisions
+- Legal compliance maintenance
+
+15.2 Complete Agreement:
+- These terms constitute the entire agreement
+- Supersedes all previous agreements
+- No oral modifications binding
+- Written amendments only
+
+---
+
+By using the SLA Business Management System, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. Your continued use of the service constitutes acceptance of any future modifications to these terms.
+
+For mobile app users: These terms apply to both the web-based admin panel and mobile application. Accessing the mobile app indicates acceptance of these terms. 

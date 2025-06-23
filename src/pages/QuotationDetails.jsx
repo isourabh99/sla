@@ -6,6 +6,7 @@ import {
   assignEngineer,
   assignPartner,
   getOffersByQuotation,
+  updateOfferStatus,
 } from "../services/quotationController";
 import { getStaffs } from "../services/staffController";
 import { getApprovedEngineers } from "../services/engineersController";
@@ -17,9 +18,6 @@ import {
   FiUser,
   FiTool,
   FiDollarSign,
-  FiCalendar,
-  FiMapPin,
-  FiFileText,
   FiPackage,
   FiUsers,
   FiUserPlus,
@@ -32,6 +30,7 @@ const QuotationDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [assigning, setAssigning] = useState(false);
+  const [updatingOfferStatus, setUpdatingOfferStatus] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState("");
   const [selectedEngineer, setSelectedEngineer] = useState("");
   const [selectedPartner, setSelectedPartner] = useState("");
@@ -157,6 +156,19 @@ const QuotationDetails = () => {
     }
   };
 
+  const handleUpdateOfferStatus = async (offerId, newStatus) => {
+    try {
+      setUpdatingOfferStatus(true);
+      await updateOfferStatus(token, offerId, newStatus);
+      toast.success(`Offer status updated to ${newStatus} successfully`);
+      fetchOffers(); // Refresh the offers list
+    } catch (error) {
+      toast.error(error.message || "Failed to update offer status");
+    } finally {
+      setUpdatingOfferStatus(false);
+    }
+  };
+
   const handlePrint = () => {
     const printContent = document.getElementById("quotation-details");
     const originalContents = document.body.innerHTML;
@@ -217,12 +229,12 @@ const QuotationDetails = () => {
           </h1>
         </div>
         <div className="flex items-center gap-4">
-          {/* <button
+          <button
             onClick={handlePrint}
             className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
             <FiPrinter className="" />
-          </button> */}
+          </button>
           <button
             onClick={() => navigate(-1)}
             className="flex items-center text-gray-600 hover:text-gray-900"
@@ -266,6 +278,10 @@ const QuotationDetails = () => {
               <div className="text-sm text-gray-500">Estimated Amount</div>
               <div className="text-xl font-bold text-gray-900">
                 ₹{parseFloat(quotation.estimated_amount).toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-500">Final Amount</div>
+              <div className="text-xl font-bold text-gray-900">
+                ₹{parseFloat(quotation.final_amount).toLocaleString()}
               </div>
             </div>
           </div>
@@ -548,7 +564,7 @@ const QuotationDetails = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <FiDollarSign className="mr-2" />
-                Offers
+                Negotiation Offers
               </h2>
               {offers.length > 0 ? (
                 <div className="overflow-x-auto">
@@ -566,6 +582,9 @@ const QuotationDetails = () => {
                         </th>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Note
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
                         </th>
                       </tr>
                     </thead>
@@ -609,6 +628,36 @@ const QuotationDetails = () => {
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {offer.note}
+                          </td>
+                          <td className="px-4 py-2 text-sm">
+                            <div className="flex gap-2">
+                              {offer.status === "pending" && (
+                                <button
+                                  onClick={() =>
+                                    handleUpdateOfferStatus(
+                                      offer.id,
+                                      "approved"
+                                    )
+                                  }
+                                  disabled={updatingOfferStatus}
+                                  className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  {updatingOfferStatus
+                                    ? "Updating..."
+                                    : "Approve"}
+                                </button>
+                              )}
+                              {offer.status === "approved" && (
+                                <span className="text-xs text-green-600 font-medium">
+                                  ✓ Approved
+                                </span>
+                              )}
+                              {offer.status === "rejected" && (
+                                <span className="text-xs text-red-600 font-medium">
+                                  ✗ Rejected
+                                </span>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}

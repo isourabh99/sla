@@ -16,6 +16,7 @@ import {
   FaDesktop,
   FaCog,
   FaFileInvoiceDollar,
+  FaQuestionCircle,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -23,10 +24,15 @@ import { useAuth } from "../context/AuthContext";
 const menuItems = [
   { icon: <FaHome />, label: "Dashboard", path: "/dashboard" },
   { icon: <FaUser />, label: "Suppliers", path: "/suppliers" },
-  { icon: <FaCog />, label: "Spare Parts", path: "/spareparts" },
+  { icon: <FaCog />, label: "Spare Parts", path: "/spare-parts" },
   { icon: <FaUser />, label: "Partners", path: "/partners" },
   { icon: <FaGraduationCap />, label: "Engineers", path: "/engineers" },
   { icon: <FaFileInvoiceDollar />, label: "Quotations", path: "/quotations" },
+  {
+    icon: <FaQuestionCircle />,
+    label: "Contact Queries",
+    path: "/contact-queries",
+  },
 ];
 
 const staffMenuItems = [

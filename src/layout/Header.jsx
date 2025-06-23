@@ -6,11 +6,13 @@ import { RiMenu2Fill } from "react-icons/ri";
 import { IoCloseOutline } from "react-icons/io5";
 import { useAuth } from "../context/AuthContext";
 import { getAdminProfile } from "../services/adminController";
+import { getNotifications } from "../services/notificationsController";
 import logo from "../assets/sla-logo.png";
 
-const Header = ({ isSidebarOpen, toggleSidebar }) => {
+const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const { token, logout, isAdmin } = useAuth();
   const profileRef = useRef(null);
 
@@ -29,6 +31,30 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
     };
 
     fetchProfile();
+  }, [token, isAdmin]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        if (token && isAdmin()) {
+          const response = await getNotifications(token);
+          if (response && response.data) {
+            const unreadCount = response.data.filter(
+              (notification) => !notification.is_read
+            ).length;
+            setUnreadNotifications(unreadCount);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+
+    // Refresh notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
   }, [token, isAdmin]);
 
   useEffect(() => {
@@ -68,9 +94,19 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            className="text-lg p-2 rounded-full cursor-pointer hover:bg-white/10 "
+            onClick={toggleNotifications}
+            className="relative text-lg p-2 rounded-full cursor-pointer hover:bg-white/10 "
           >
             <FaBell />
+            {unreadNotifications > 0 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold"
+              >
+                {unreadNotifications > 99 ? "99+" : unreadNotifications}
+              </motion.div>
+            )}
           </motion.div>
           <div className="relative" ref={profileRef}>
             <motion.div
@@ -129,6 +165,20 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
                       <FaUserCircle className="text-[#387DB2] text-lg" />
                       <span className="font-medium">View Profile</span>
                     </Link>
+                    <button
+                      onClick={toggleNotifications}
+                      className="w-full px-5 py-3 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors duration-200"
+                    >
+                      <FaBell className="text-[#387DB2] text-lg" />
+                      <span className="font-medium">Notifications</span>
+                      {unreadNotifications > 0 && (
+                        <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                          {unreadNotifications > 99
+                            ? "99+"
+                            : unreadNotifications}
+                        </span>
+                      )}
+                    </button>
                     <button
                       onClick={logout}
                       className="w-full px-5 py-3 text-left text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors duration-200"

@@ -18,7 +18,7 @@ import {
   FaHome,
   FaEdit,
 } from "react-icons/fa";
-
+import defaultDp from "../assets/deafultdp.jpg";
 const InputField = ({ icon: Icon, type = "text", label, ...props }) => (
   <div className="space-y-1">
     <label className="block text-sm font-medium text-gray-700">{label}</label>
@@ -181,79 +181,18 @@ const StaffDetails = () => {
       {isEditing ? (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField
-                icon={FaUser}
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                icon={FaEnvelope}
-                label="Email"
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                icon={FaPhone}
-                label="Phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                icon={FaHome}
-                label="Address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                icon={FaMapMarkerAlt}
-                label="City"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                icon={FaMapMarkerAlt}
-                label="State"
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                icon={FaGlobe}
-                label="Country"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-center">
-                <div className="relative">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Profile Image Section */}
+              <div className="lg:w-1/3 flex flex-col items-center">
+                <div className="relative mb-4">
                   <img
                     src={
-                      previewImage ||
-                      staffDetails.profile_picture ||
-                      "https://via.placeholder.com/150"
+                      previewImage || staffDetails.profile_picture || defaultDp
                     }
                     alt="Profile"
-                    className="h-32 w-32 rounded-full object-cover border-4 border-gray-100"
+                    className="h-40 w-40 rounded-full object-cover border-4 border-gray-100 shadow-lg"
                   />
-                  <label className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors">
+                  <label className="absolute bottom-2 right-2 bg-blue-500 text-white p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors shadow-lg">
                     <FaCamera />
                     <input
                       type="file"
@@ -264,88 +203,160 @@ const StaffDetails = () => {
                     />
                   </label>
                 </div>
+                <p className="text-sm text-gray-500 text-center">
+                  Click camera icon to change photo
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="flex items-center w-full px-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm">
-                      <FaLock className="h-5 w-5 text-gray-400 mr-2" />
-                      <input
-                        type={showPasswords.password ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full bg-transparent border-none focus:outline-none text-gray-700"
-                        placeholder="Leave blank to keep current password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => togglePasswordVisibility("password")}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        {showPasswords.password ? <FaEyeSlash /> : <FaEye />}
-                      </button>
+              {/* Form Fields Section */}
+              <div className="lg:w-2/3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputField
+                    icon={FaUser}
+                    label="Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                  <InputField
+                    icon={FaEnvelope}
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                  <InputField
+                    icon={FaPhone}
+                    label="Phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                  <InputField
+                    icon={FaMapMarkerAlt}
+                    label="City"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    required
+                  />
+                  <InputField
+                    icon={FaMapMarkerAlt}
+                    label="State"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    required
+                  />
+                  <InputField
+                    icon={FaGlobe}
+                    label="Country"
+                    name="country"
+                    value={formData.country}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                {/* Address Field - Full Width */}
+                <div className="mt-4">
+                  <InputField
+                    icon={FaHome}
+                    label="Address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                {/* Password Fields */}
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <div className="flex items-center w-full px-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm">
+                        <FaLock className="h-5 w-5 text-gray-400 mr-2" />
+                        <input
+                          type={showPasswords.password ? "text" : "password"}
+                          name="password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          className="w-full bg-transparent border-none focus:outline-none text-gray-700"
+                          placeholder="Leave blank to keep current password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => togglePasswordVisibility("password")}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          {showPasswords.password ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <div className="flex items-center w-full px-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm">
+                        <FaLock className="h-5 w-5 text-gray-400 mr-2" />
+                        <input
+                          type={
+                            showPasswords.password_confirmation
+                              ? "text"
+                              : "password"
+                          }
+                          name="password_confirmation"
+                          value={formData.password_confirmation}
+                          onChange={handleChange}
+                          className="w-full bg-transparent border-none focus:outline-none text-gray-700"
+                          placeholder="Confirm new password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            togglePasswordVisibility("password_confirmation")
+                          }
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          {showPasswords.password_confirmation ? (
+                            <FaEyeSlash />
+                          ) : (
+                            <FaEye />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <div className="flex items-center w-full px-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm">
-                      <FaLock className="h-5 w-5 text-gray-400 mr-2" />
-                      <input
-                        type={
-                          showPasswords.password_confirmation
-                            ? "text"
-                            : "password"
-                        }
-                        name="password_confirmation"
-                        value={formData.password_confirmation}
-                        onChange={handleChange}
-                        className="w-full bg-transparent border-none focus:outline-none text-gray-700"
-                        placeholder="Confirm new password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          togglePasswordVisibility("password_confirmation")
-                        }
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        {showPasswords.password_confirmation ? (
-                          <FaEyeSlash />
-                        ) : (
-                          <FaEye />
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                {/* Submit Button */}
+                <div className="mt-6 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={updateLoading}
+                    className="px-6 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg flex items-center gap-2 hover:shadow-lg transition-all duration-200"
+                  >
+                    {updateLoading ? (
+                      <>
+                        <FaSpinner className="animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      "Update Staff"
+                    )}
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <button
-                type="submit"
-                disabled={updateLoading}
-                className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
-              >
-                {updateLoading ? (
-                  <>
-                    <FaSpinner className="animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update Staff"
-                )}
-              </button>
             </div>
           </div>
         </form>
@@ -354,10 +365,7 @@ const StaffDetails = () => {
           <div className="p-6">
             <div className="flex items-start space-x-6">
               <img
-                src={
-                  staffDetails.profile_picture ||
-                  "https://via.placeholder.com/150"
-                }
+                src={staffDetails.profile_picture || defaultDp}
                 alt={staffDetails.name}
                 className="h-32 w-32 rounded-full object-cover border-4 border-gray-100"
               />
@@ -418,10 +426,7 @@ const StaffDetails = () => {
                   Account Information
                 </h3>
                 <div className="space-y-2">
-                  <p className="text-gray-600">
-                    <span className="font-medium">Brand ID:</span>{" "}
-                    {staffDetails.brand_id ? `#${staffDetails.brand_id}` : "-"}
-                  </p>
+                 
                   <p className="text-gray-600">
                     <span className="font-medium">Joined Date:</span>{" "}
                     {new Date(staffDetails.created_at).toLocaleDateString()}

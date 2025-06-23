@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import {
@@ -7,6 +8,26 @@ import {
 } from "../services/businessSettingsController";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
+import BusinessInfoSettings from "./business-settings/BusinessInfoSettings";
+import MaintenanceSettings from "./business-settings/MaintenanceSettings";
+import ProfessionalServicesSettings from "./business-settings/ProfessionalServicesSettings";
+import SoftwareCloudSettings from "./business-settings/SoftwareCloudSettings";
+import TermsConditionsSettings from "./business-settings/TermsConditionsSettings";
+import {
+  getSoftwareCloudServices,
+  addSoftwareCloudService,
+  updateSoftwareCloudService,
+  deleteSoftwareCloudService,
+} from "../services/softwareCloudServiceController";
+import { getTerms, storeTerms } from "../services/termsController";
+
+const TABS = {
+  BUSINESS_INFO: "Business Info",
+  MAINTENANCE: "Maintenance",
+  PROFESSIONAL_SERVICES: "Professional Services",
+  SOFTWARE_CLOUD: "Software & Cloud Services",
+  TERMS_CONDITIONS: "Terms & Conditions",
+};
 
 const BusinessSettings = () => {
   const [loading, setLoading] = useState(true);
@@ -18,14 +39,29 @@ const BusinessSettings = () => {
     server: "",
     networking: "",
     storage: "",
-    onsite:"",
-    remote:"",
+    onsite: "",
+    remote: "",
     sla_commission: "",
   });
+  const [activeTab, setActiveTab] = useState(TABS.BUSINESS_INFO);
   const { token } = useAuth();
+  const navigate = useNavigate();
+  const [services, setServices] = useState([]);
+  const [editingService, setEditingService] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    category: 2,
+    price: "",
+  });
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [deletingService, setDeletingService] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [termsContent, setTermsContent] = useState("");
 
   useEffect(() => {
     fetchSettings();
+    fetchServices();
+    fetchTerms();
   }, []);
 
   const fetchSettings = async () => {
@@ -33,12 +69,33 @@ const BusinessSettings = () => {
       const response = await getBusinessSettings(token);
       if (response.status) {
         setSettings(response.data);
-        console.log(response.data);
       }
     } catch (error) {
       toast.error("Failed to fetch settings");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchServices = async () => {
+    try {
+      const response = await getSoftwareCloudServices(token);
+      if (response.status) {
+        setServices(response.data);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch software/cloud services");
+    }
+  };
+
+  const fetchTerms = async () => {
+    try {
+      const response = await getTerms(token);
+      if (response.status) {
+        setTermsContent(response.data?.content || "");
+      }
+    } catch (error) {
+      toast.error("Failed to fetch terms and conditions");
     }
   };
 
@@ -65,6 +122,176 @@ const BusinessSettings = () => {
     }
   };
 
+  const handleAddService = async (serviceData) => {
+    console.log("Sending serviceData to API:", serviceData);
+    try {
+      const response = await addSoftwareCloudService(serviceData, token);
+      console.log("API response:", response);
+      if (response.status) {
+        toast.success("Service added successfully");
+        fetchServices();
+        return true;
+      } else {
+        toast.error(response.message || "Failed to add service");
+        return false;
+      }
+    } catch (error) {
+      console.error("API error:", error);
+      toast.error("Failed to add service");
+      return false;
+    }
+  };
+
+  const handleEditService = (service) => {
+    setEditingService(service);
+    setEditForm({
+      name: service.name,
+      category: service.category,
+      price: service.price,
+    });
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditFormSubmit = async (e) => {
+    e.preventDefault();
+    setEditSubmitting(true);
+    try {
+      const response = await updateSoftwareCloudService(
+        editingService.id,
+        {
+          name: editForm.name,
+          category: Number(editForm.category),
+          price: parseFloat(editForm.price) || 0,
+        },
+        token
+      );
+      if (response.status) {
+        toast.success("Service updated successfully");
+        setEditingService(null);
+        fetchServices();
+      } else {
+        toast.error(response.message || "Failed to update service");
+      }
+    } catch (error) {
+      toast.error("Failed to update service");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const handleEditModalClose = () => {
+    setEditingService(null);
+  };
+
+  const handleDeleteService = (service) => {
+    setDeletingService(service);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingService) return;
+    setDeleteSubmitting(true);
+    try {
+      const response = await deleteSoftwareCloudService(
+        deletingService.id,
+        {
+          name: deletingService.name,
+          category: deletingService.category,
+          price: deletingService.price,
+        },
+        token
+      );
+      if (response.status) {
+        toast.success("Service deleted successfully");
+        setDeletingService(null);
+        fetchServices();
+      } else {
+        toast.error(response.message || "Failed to delete service");
+      }
+    } catch (error) {
+      toast.error("Failed to delete service");
+    } finally {
+      setDeleteSubmitting(false);
+    }
+  };
+
+  const handleDeleteModalClose = () => {
+    setDeletingService(null);
+  };
+
+  const handleTermsChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "terms_content") {
+      setTermsContent(value);
+    }
+  };
+
+  const handleTermsSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const response = await storeTerms(token, termsContent);
+      if (response.status) {
+        toast.success("Terms and conditions updated successfully");
+      } else {
+        toast.error(
+          response.message || "Failed to update terms and conditions"
+        );
+      }
+    } catch (error) {
+      toast.error("Failed to update terms and conditions");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case TABS.BUSINESS_INFO:
+        return (
+          <BusinessInfoSettings
+            settings={settings}
+            handleChange={handleChange}
+          />
+        );
+      case TABS.MAINTENANCE:
+        return (
+          <MaintenanceSettings
+            settings={settings}
+            handleChange={handleChange}
+          />
+        );
+      case TABS.PROFESSIONAL_SERVICES:
+        return (
+          <ProfessionalServicesSettings
+            settings={settings}
+            handleChange={handleChange}
+          />
+        );
+      case TABS.SOFTWARE_CLOUD:
+        return (
+          <SoftwareCloudSettings
+            services={services}
+            onAdd={handleAddService}
+            onEdit={handleEditService}
+            onDelete={handleDeleteService}
+          />
+        );
+      case TABS.TERMS_CONDITIONS:
+        return (
+          <TermsConditionsSettings
+            termsContent={termsContent}
+            handleChange={handleTermsChange}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return <Loader size="large" fullScreen />;
   }
@@ -79,180 +306,171 @@ const BusinessSettings = () => {
       </div>
 
       <div className="max-w-4xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Business Info Section */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              Business Info
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Name
-                </label>
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+            {Object.values(TABS).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`${
+                  activeTab === tab
+                    ? "border-[#387DB2] text-[#387DB2]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-all`}
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {activeTab === TABS.BUSINESS_INFO ||
+        activeTab === TABS.MAINTENANCE ||
+        activeTab === TABS.PROFESSIONAL_SERVICES ? (
+          <form onSubmit={handleSubmit}>
+            {renderContent()}
+            <div className="mt-8">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={saving}
+                className="px-6 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                    <span>Saving...</span>
+                  </div>
+                ) : (
+                  "Save Changes"
+                )}
+              </motion.button>
+            </div>
+          </form>
+        ) : activeTab === TABS.TERMS_CONDITIONS ? (
+          <form onSubmit={handleTermsSubmit}>
+            {renderContent()}
+            <div className="mt-8">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={saving}
+                className="px-6 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                    <span>Saving...</span>
+                  </div>
+                ) : (
+                  "Save Changes"
+                )}
+              </motion.button>
+            </div>
+          </form>
+        ) : (
+          renderContent()
+        )}
+      </div>
+
+      {editingService && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Edit Service</h3>
+            <form onSubmit={handleEditFormSubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Name</label>
                 <input
                   type="text"
-                  name="business_name"
-                  value={settings.business_name || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter business name"
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Email
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">
+                  Category
                 </label>
+                <select
+                  name="category"
+                  value={editForm.category}
+                  onChange={handleEditFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                >
+                  <option value={1}>Database</option>
+                  <option value={2}>Application</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Price</label>
                 <input
-                  type="email"
-                  name="business_email"
-                  value={settings.business_email || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter business email"
+                  type="number"
+                  name="price"
+                  value={editForm.price}
+                  onChange={handleEditFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  min="0"
+                  step="0.01"
+                  required
                 />
               </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  onClick={handleEditModalClose}
+                  disabled={editSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#387DB2] text-white rounded hover:bg-[#2d6a99]"
+                  disabled={editSubmitting}
+                >
+                  {editSubmitting ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Phone
-                </label>
-                <input
-                  type="tel"
-                  name="business_phone"
-                  value={settings.business_phone || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter business phone"
-                />
-              </div>
+      {deletingService && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Delete Service</h3>
+            <p className="mb-6">
+              Are you sure you want to delete{" "}
+              <span className="font-bold">{deletingService.name}</span>? This
+              action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={handleDeleteModalClose}
+                disabled={deleteSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                onClick={handleDeleteConfirm}
+                disabled={deleteSubmitting}
+              >
+                {deleteSubmitting ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </div>
-
-          {/* Maintenance Section */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              Maintenance
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Server Price
-                </label>
-                <input
-                  type="number"
-                  name="server"
-                  value={settings.server || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter server price"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Networking Price
-                </label>
-                <input
-                  type="number"
-                  name="networking"
-                  value={settings.networking || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter networking price"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Storage Price
-                </label>
-                <input
-                  type="number"
-                  name="storage"
-                  value={settings.storage || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter storage price"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Onsite Price
-                </label>
-                <input
-                  type="number"
-                  name="onsite"
-                  value={settings.onsite || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter onsite price"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Remote Price
-                </label>
-                <input
-                  type="number"
-                  name="remote"
-                  value={settings.remote || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter remote price"
-                  min="0"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Professional Services Setting Section */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              Professional Services Setting
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  SLA Commission (%)
-                </label>
-                <input
-                  type="number"
-                  name="sla_commission"
-                  value={settings.sla_commission || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter SLA commission percentage"
-                  min="0"
-                  max="100"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={saving}
-              className="px-6 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? (
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                  <span>Saving...</span>
-                </div>
-              ) : (
-                "Save Changes"
-              )}
-            </motion.button>
-          </div>
-        </form>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
