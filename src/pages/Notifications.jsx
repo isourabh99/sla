@@ -48,6 +48,7 @@ const Notifications = ({ isOpen, onClose }) => {
   const [refreshing, setRefreshing] = useState(false);
   const { token } = useAuth();
   const shownNotificationIdsRef = useRef([]);
+  const [markingReadId, setMarkingReadId] = useState(null);
 
   const fetchNotifications = async () => {
     try {
@@ -99,19 +100,17 @@ const Notifications = ({ isOpen, onClose }) => {
   }, [isOpen, token]);
 
   const handleMarkAsRead = async (notificationId) => {
+    setMarkingReadId(notificationId);
+    const markingToastId = toast.loading("Marking as read...");
     try {
       await markNotificationAsRead(notificationId, token);
-      setNotifications((prev) =>
-        prev.map((notification) =>
-          notification.notification_id === notificationId ||
-          notification.id === notificationId
-            ? { ...notification, is_read: true }
-            : notification
-        )
-      );
-      toast.success("Notification marked as read");
+      await fetchNotifications();
+      toast.success("Notification marked as read", { id: markingToastId });
     } catch (err) {
+      toast.error("Failed to mark as read", { id: markingToastId });
       console.error("Failed to mark notification as read:", err);
+    } finally {
+      setMarkingReadId(null);
     }
   };
 
@@ -341,10 +340,46 @@ const Notifications = ({ isOpen, onClose }) => {
                                         notification.id
                                     )
                                   }
-                                  className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors duration-200"
+                                  className={`p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors duration-200 flex items-center justify-center ${
+                                    markingReadId ===
+                                    (notification.notification_id ||
+                                      notification.id)
+                                      ? "opacity-60 cursor-not-allowed"
+                                      : ""
+                                  }`}
                                   title="Mark as read"
+                                  disabled={
+                                    markingReadId ===
+                                    (notification.notification_id ||
+                                      notification.id)
+                                  }
                                 >
-                                  <FiCheck className="w-3 h-3" />
+                                  {markingReadId ===
+                                  (notification.notification_id ||
+                                    notification.id) ? (
+                                    <svg
+                                      className="animate-spin h-3 w-3 text-green-600"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                      ></circle>
+                                      <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                      ></path>
+                                    </svg>
+                                  ) : (
+                                    <FiCheck className="w-3 h-3" />
+                                  )}
                                 </button>
                               )}
                             </div>
