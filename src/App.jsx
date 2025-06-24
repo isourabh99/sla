@@ -8,7 +8,6 @@ import CreateStaff from "./pages/CreateStaff";
 import StaffList from "./pages/StaffList";
 import StaffDetails from "./pages/StaffDetails";
 import Layout from "./layout/Layout";
-import { Toaster } from "sonner";
 import CreateBrand from "./pages/CreateBrand";
 import BrandList from "./pages/BrandList";
 import BrandDetails from "./pages/BrandDetails";
@@ -34,8 +33,6 @@ import Notifications from "./pages/Notifications";
 function App() {
   return (
     <AuthProvider>
-      <Toaster richColors position="top-right" />
-
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />

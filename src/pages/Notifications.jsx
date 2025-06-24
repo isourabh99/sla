@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   getNotifications,
@@ -21,6 +21,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 // Background colors array for different notification styles
 const bgColors = [
@@ -46,15 +47,45 @@ const Notifications = ({ isOpen, onClose }) => {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const { token } = useAuth();
+  const shownNotificationIdsRef = useRef([]);
 
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await getNotifications(token);
-      console.log(response.data);
-
-      setNotifications(response.data || []);
+      const data = await getNotifications(token);
+      // Robustly extract notifications array
+      let notifications = [];
+      if (Array.isArray(data.data.notifications)) {
+        notifications = data.data.notifications;
+        console.log(notifications);
+      } else if (data && Array.isArray(data.data)) {
+        notifications = data.data;
+      } else if (data && data.data && Array.isArray(data.data.notification)) {
+        notifications = data.data.notification;
+      }
+      setNotifications(notifications);
       setError(null);
+
+      // Show Sonner toast for new unread notifications
+      const newToShow = notifications.filter(
+        (n) =>
+          !n.is_read &&
+          !shownNotificationIdsRef.current.includes(n.notification_id || n.id)
+      );
+      newToShow.forEach((n) => {
+        toast(
+          n.description ||
+            n.message ||
+            n.title ||
+            "You have a new notification!"
+        );
+      });
+      if (newToShow.length > 0) {
+        shownNotificationIdsRef.current = [
+          ...shownNotificationIdsRef.current,
+          ...newToShow.map((n) => n.notification_id || n.id),
+        ];
+      }
     } catch (err) {
       setError(err.message || "Failed to fetch notifications");
       setNotifications([]);
@@ -64,9 +95,7 @@ const Notifications = ({ isOpen, onClose }) => {
   };
 
   useEffect(() => {
-    if (isOpen) {
-      fetchNotifications();
-    }
+    fetchNotifications();
   }, [isOpen, token]);
 
   const handleMarkAsRead = async (notificationId) => {
@@ -74,11 +103,13 @@ const Notifications = ({ isOpen, onClose }) => {
       await markNotificationAsRead(notificationId, token);
       setNotifications((prev) =>
         prev.map((notification) =>
-          notification.notification_id === notificationId
+          notification.notification_id === notificationId ||
+          notification.id === notificationId
             ? { ...notification, is_read: true }
             : notification
         )
       );
+      toast.success("Notification marked as read");
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
     }
@@ -248,7 +279,11 @@ const Notifications = ({ isOpen, onClose }) => {
                 <div key="notifications-list" className="p-4 space-y-3">
                   {filteredNotifications.map((notification, index) => (
                     <div
-                      key={notification.notification_id}
+                      key={
+                        notification.notification_id ||
+                        notification.id ||
+                        `notification-${index}`
+                      }
                       className={`rounded-lg p-4 transition-all duration-200 hover:shadow-md ${
                         !notification.is_read ? "" : ""
                       } ${getNotificationColor(notification.type, index)}`}
@@ -269,7 +304,8 @@ const Notifications = ({ isOpen, onClose }) => {
                             )}
                           </div>
                           <p className="text-gray-700 mb-2 text-sm leading-relaxed">
-                            {notification.message ||
+                            {notification.description ||
+                              notification.message ||
                               (notification.spare_part_name &&
                                 `Spare part "${notification.spare_part_name}" has been added.`) ||
                               notification.title}
@@ -278,14 +314,17 @@ const Notifications = ({ isOpen, onClose }) => {
                             <div className="flex items-center space-x-1">
                               <FiClock className="w-3 h-3" />
                               <span>
-                                {new Date(
-                                  notification.created_at
-                                ).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {notification.created_at
+                                  ? new Date(
+                                      notification.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
+                                  : ""}
                               </span>
                             </div>
                             <div className="flex items-center space-x-1">
@@ -298,7 +337,8 @@ const Notifications = ({ isOpen, onClose }) => {
                                 <button
                                   onClick={() =>
                                     handleMarkAsRead(
-                                      notification.notification_id
+                                      notification.notification_id ||
+                                        notification.id
                                     )
                                   }
                                   className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors duration-200"
@@ -325,15 +365,6 @@ const Notifications = ({ isOpen, onClose }) => {
                     {filteredNotifications.length} notification
                     {filteredNotifications.length !== 1 ? "s" : ""} shown
                   </span>
-                  <button
-                    onClick={() => {
-                      setSelectedNotification({ id: "all" });
-                      setShowDeleteModal(true);
-                    }}
-                    className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded text-xs font-medium transition-colors duration-200"
-                  >
-                    Clear all
-                  </button>
                 </div>
               </div>
             )}

@@ -4,7 +4,7 @@ import config from "../config";
 const BASE_URL = config.api.baseUrl;
 
 // Fetch spare parts added by suppliers
-export async function getSupplierSpareParts(token) {
+export async function getSupplierSpareParts(token, page = 1) {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/supplier/all/SpearPartDetails`,
@@ -12,6 +12,9 @@ export async function getSupplierSpareParts(token) {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+        },
+        params: {
+          page: page,
         },
       }
     );
@@ -24,7 +27,7 @@ export async function getSupplierSpareParts(token) {
 }
 
 // Fetch spare parts added by customers
-export async function getCustomerSpareParts(token) {
+export async function getCustomerSpareParts(token, page = 1) {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/supplier/all/User/SpearPartDetails`,
@@ -32,6 +35,9 @@ export async function getCustomerSpareParts(token) {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+        },
+        params: {
+          page: page,
         },
       }
     );

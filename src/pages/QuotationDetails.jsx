@@ -275,13 +275,13 @@ const QuotationDetails = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500">Estimated Amount</div>
-              <div className="text-xl font-bold text-gray-900">
-                ₹{parseFloat(quotation.estimated_amount).toLocaleString()}
+              <div className="text-sm text-emerald-500">Estimated Amount</div>
+              <div className="text-sm font-bold text-gray-900">
+               ${parseFloat(quotation.estimated_amount).toLocaleString()}
               </div>
-              <div className="text-sm text-gray-500">Final Amount</div>
-              <div className="text-xl font-bold text-gray-900">
-                ₹{parseFloat(quotation.final_amount).toLocaleString()}
+              <div className="text-sm text-blue-500">Final Amount</div>
+              <div className="text-sm font-bold text-gray-900">
+               ${parseFloat(quotation.final_amount).toLocaleString()}
               </div>
             </div>
           </div>
@@ -298,7 +298,7 @@ const QuotationDetails = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Name:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 capitalize">
                     {quotation.customer?.name} {quotation.customer?.last_name}
                   </span>
                 </div>
@@ -342,7 +342,7 @@ const QuotationDetails = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Type:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 capitalize">
                     {quotation.quotation_type}
                   </span>
                 </div>
@@ -611,7 +611,7 @@ const QuotationDetails = () => {
                             </div>
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            ₹{parseFloat(offer.offered_amount).toLocaleString()}
+                           ${parseFloat(offer.offered_amount).toLocaleString()}
                           </td>
                           <td className="px-4 py-2 text-sm">
                             <span
@@ -703,7 +703,7 @@ const QuotationDetails = () => {
                             {part.quantity}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            ₹{parseFloat(part.price).toLocaleString()}
+                           ${parseFloat(part.price).toLocaleString()}
                           </td>
                         </tr>
                       ))}

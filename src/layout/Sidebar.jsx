@@ -97,7 +97,7 @@ const Sidebar = ({ isOpen }) => {
     >
       <div className="flex flex-col h-full">
         {/* Navigation Menu */}
-        <nav className="flex-1 p-2 overflow-y-auto mt-14">
+        <nav className="flex-1 p-2 overflow-y-auto mt-16">
           <ul className="space-y-1">
             {menuItems.map((item, index) => (
               <motion.li key={index} variants={menuItemVariants}>

@@ -205,7 +205,10 @@ const Profile = () => {
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Profile</h1>
+      <div className="flex items-center gap-2 mb-6">
+        <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
+        <h1 className="text-xl font-semibold text-gray-500">Profile</h1>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}

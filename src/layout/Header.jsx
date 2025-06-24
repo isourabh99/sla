@@ -8,13 +8,19 @@ import { useAuth } from "../context/AuthContext";
 import { getAdminProfile } from "../services/adminController";
 import { getNotifications } from "../services/notificationsController";
 import logo from "../assets/sla-logo.png";
+import { toast } from "sonner";
+import notifee from "../assets/notifee.mp3";
 
 const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [notifications, setNotifications] = useState([]);
   const { token, logout, isAdmin } = useAuth();
   const profileRef = useRef(null);
+  const prevUnreadRef = useRef(unreadNotifications);
+  const audioRef = useRef(null);
+  const lastPlayedNotificationId = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -37,13 +43,17 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
     const fetchNotifications = async () => {
       try {
         if (token && isAdmin()) {
-          const response = await getNotifications(token);
-          if (response && response.data) {
-            const unreadCount = response.data.filter(
-              (notification) => !notification.is_read
-            ).length;
-            setUnreadNotifications(unreadCount);
-          }
+          const data = await getNotifications(token);
+          const notificationsArr = Array.isArray(data.data.notifications)
+            ? data.data.notifications
+            : Array.isArray(data.data)
+            ? data.data
+            : [];
+          setNotifications(notificationsArr);
+          const unreadCount = notificationsArr.filter(
+            (notification) => !notification.is_read
+          ).length;
+          setUnreadNotifications(unreadCount);
         }
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -53,7 +63,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
     fetchNotifications();
 
     // Refresh notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
   }, [token, isAdmin]);
 
@@ -70,15 +80,32 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
     };
   }, []);
 
+  useEffect(() => {
+    // Find latest unread notification
+    const latestUnread = notifications
+      ? notifications
+          .filter((n) => !n.is_read)
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+      : null;
+
+    if (latestUnread && lastPlayedNotificationId.current !== latestUnread.id) {
+      toast("You have a new notification!");
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+      lastPlayedNotificationId.current = latestUnread.id;
+    }
+  }, [notifications]);
+
   return (
     <header className="bg-gradient-to-r from-[#387DB2] to-[#3D356E] p-2 text-white">
+      <audio ref={audioRef} src={notifee} preload="auto" />
       <div className="mx-auto flex justify-between items-center">
         <div className="flex items-center gap-24">
-          {/* <div className="flex flex-col">
-            <motion.div className="flex items-center justify-center">
-              <img src={logo} alt="logo" className="w-32 brightness-0 invert" />
-            </motion.div>
-          </div> */}
+          <motion.div className="flex items-center justify-center">
+            <img src={logo} alt="logo" className="w-32 brightness-0 invert" />
+          </motion.div>
           <button
             onClick={toggleSidebar}
             className="p-2 rounded-full hover:bg-white/10 "

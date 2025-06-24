@@ -28,29 +28,52 @@ const SpareParts = () => {
   });
   const [updating, setUpdating] = useState(false);
   const [brands, setBrands] = useState([]);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+    links: [],
+  });
 
   useEffect(() => {
-    fetchSpareParts();
+    fetchSpareParts(1);
     fetchBrands();
   }, [token, activeTab]);
 
-  const fetchSpareParts = async () => {
+  const fetchSpareParts = async (page = 1) => {
     try {
       setLoading(true);
       let response;
 
       if (activeTab === "supplier") {
-        response = await getSupplierSpareParts(token);
+        response = await getSupplierSpareParts(token, page);
       } else {
-        response = await getCustomerSpareParts(token);
+        response = await getCustomerSpareParts(token, page);
       }
 
       let sparePartsData = [];
-      if (response?.data?.data && Array.isArray(response.data.data)) {
-        sparePartsData = response.data.data;
-      } else if (response?.data && Array.isArray(response.data)) {
+      let current_page = 1;
+      let last_page = 1;
+      let per_page = 10;
+      let total = 0;
+      let links = [];
+
+      if (response?.data && Array.isArray(response.data)) {
         sparePartsData = response.data;
+        current_page = response.current_page || 1;
+        last_page = response.last_page || 1;
+        per_page = response.per_page || 10;
+        total = response.total || 0;
+        links = response.links || [];
+      } else if (response?.data?.data && Array.isArray(response.data.data)) {
+        sparePartsData = response.data.data;
+        current_page = response.data.current_page || 1;
+        last_page = response.data.last_page || 1;
+        per_page = response.data.per_page || 10;
+        total = response.data.total || 0;
+        links = response.data.links || [];
       } else if (response && Array.isArray(response)) {
         sparePartsData = response;
       }
@@ -61,6 +84,13 @@ const SpareParts = () => {
         setCustomerSpareParts(sparePartsData);
       }
 
+      setPagination({
+        current_page,
+        last_page,
+        per_page,
+        total,
+        links,
+      });
       setError(null);
     } catch (err) {
       setError(err.message || `Failed to fetch ${activeTab} spare parts`);
@@ -126,13 +156,77 @@ const SpareParts = () => {
     setError(null);
   };
 
+  const handlePageChange = (page) => {
+    fetchSpareParts(page);
+  };
+
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, current_page: 1 }));
+  }, [activeTab]);
+
+  const renderPagination = () => {
+    const pages = [];
+    for (let i = 1; i <= pagination.last_page; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-3 py-1 rounded ${
+            pagination.current_page === i
+              ? "bg-blue-500 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between m-4">
+        <div className="text-sm text-gray-700">
+          Showing {(pagination.current_page - 1) * pagination.per_page + 1} to{" "}
+          {Math.min(
+            pagination.current_page * pagination.per_page,
+            pagination.total
+          )}{" "}
+          of {pagination.total} entries
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handlePageChange(pagination.current_page - 1)}
+            disabled={pagination.current_page === 1}
+            className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          {pages}
+          <button
+            onClick={() => handlePageChange(pagination.current_page + 1)}
+            disabled={pagination.current_page === pagination.last_page}
+            className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const columns = [
     {
       key: "sno",
       label: "S.No.",
       render: (row, index) => (
-        <span className="text-gray-600 font-medium">{index + 1}</span>
+        <span className="text-gray-600 font-medium">
+          {(pagination.current_page - 1) * pagination.per_page + index + 1}
+        </span>
       ),
+    },
+    {
+      key: "id",
+      label: "ID",
+      render: (row) => <span className="text-gray-500">{row.id}</span>,
     },
     {
       key: "name",
@@ -141,58 +235,72 @@ const SpareParts = () => {
         <span className="font-medium text-gray-900">{row.name}</span>
       ),
     },
-    {
-      key: "description",
-      label: "Description",
-      render: (row) => <span className="text-gray-700">{row.description}</span>,
-    },
-    {
-      key: "price",
-      label: "Price",
-      render: (row) => (
-        <span className="text-blue-600 font-semibold">₹{row.price}</span>
-      ),
-    },
-    {
-      key: "brand",
-      label: "Brand",
-      render: (row) => (
-        <div className="flex items-center space-x-2">
-          <img
-            src={row.brand?.image}
-            alt={row.brand?.name}
-            className="h-8 w-8 object-cover rounded-full border"
-            onError={(e) => (e.target.src = defaultSpare)}
-          />
-          <span>{row.brand?.name}</span>
-        </div>
-      ),
-    },
+    // Only show Description, Price, and Brand columns for supplier tab
+    ...(activeTab === "supplier"
+      ? [
+          {
+            key: "description",
+            label: "Description",
+            render: (row) => (
+              <span className="text-gray-700">{row.description}</span>
+            ),
+          },
+          {
+            key: "price",
+            label: "Price",
+            render: (row) => (
+              <span className="text-emerald-500 font-bold">$ {row.price}</span>
+            ),
+          },
+          {
+            key: "brand",
+            label: "Brand",
+            render: (row) => (
+              <div className="flex items-center space-x-2">
+                <img
+                  src={row.brand?.image}
+                  alt={row.brand?.name}
+                  className="h-8 w-8 object-cover rounded-full border"
+                  onError={(e) => (e.target.src = defaultSpare)}
+                />
+                <span>{row.brand?.name}</span>
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       key: "user",
       label: activeTab === "supplier" ? "Supplier" : "Customer",
-      render: (row) => (
-        <div className="flex items-center space-x-2">
-          <img
-            src={
-              row.supplier?.profile_picture ||
-              row.customer?.profile_picture ||
-              defaultDp
-            }
-            alt={row.supplier?.name || row.customer?.name}
-            className="h-8 w-8 object-cover rounded-full border"
-            onError={(e) => (e.target.src = defaultDp)}
-          />
-          <div>
-            <div className="font-medium">
-              {row.supplier?.name || row.customer?.name}
-            </div>
-            <div className="text-xs text-gray-500">
-              {row.supplier?.email || row.customer?.email}
+      render: (row) => {
+        const supplier = row.supplier || {};
+        const showAdmin = !supplier.name || supplier.name.trim() === "";
+        const displayName = showAdmin
+          ? user?.name || "Approved by admin"
+          : supplier.name;
+        const displayEmail = showAdmin
+          ? user?.email || "Approved by admin"
+          : supplier.email && supplier.email.trim() !== ""
+          ? supplier.email
+          : user?.email || "Approved by admin";
+        const displayDp = showAdmin
+          ? user?.profile_picture || defaultDp
+          : supplier.profile_picture || defaultDp;
+        return (
+          <div className="flex items-center space-x-2">
+            <img
+              src={displayDp}
+              alt={displayName}
+              className="h-8 w-8 object-cover rounded-full border"
+              onError={(e) => (e.target.src = defaultDp)}
+            />
+            <div>
+              <div className="font-medium">{displayName}</div>
+              <div className="text-xs text-gray-500">{displayEmail}</div>
             </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     // Only show actions column for customer spare parts
     ...(activeTab === "customer"
@@ -246,16 +354,19 @@ const SpareParts = () => {
       {loading ? (
         <Loader size="large" fullScreen />
       ) : (
-        <DataTable
-          title="Spare Parts Management"
-          subtitle={`${
-            activeTab === "supplier" ? "Supplier" : "Customer"
-          } Spare Parts List`}
-          columns={columns}
-          data={currentData}
-          loading={loading}
-          error={error}
-        />
+        <>
+          <DataTable
+            title="Spare Parts Management"
+            subtitle={`${
+              activeTab === "supplier" ? "Supplier" : "Customer"
+            } Spare Parts List`}
+            columns={columns}
+            data={currentData}
+            loading={loading}
+            error={error}
+          />
+          {!error && currentData.length > 0 && renderPagination()}
+        </>
       )}
 
       {/* Edit Modal */}

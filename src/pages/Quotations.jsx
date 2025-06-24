@@ -43,7 +43,7 @@ const Quotations = () => {
       label: "Customer",
       render: (row) => (
         <div>
-          <div className="font-medium text-gray-900">
+          <div className="font-medium text-gray-900 capitalize">
             {row.customer?.name} {row.customer?.last_name}
           </div>
           <div className="text-sm text-gray-500">{row.customer?.email}</div>
@@ -59,10 +59,10 @@ const Quotations = () => {
           <div className="font-medium text-gray-900">
             {row.service_category}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 capitalize">
             Type: {row.quotation_type}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 capitalize">
             Support: {row.support_type}
           </div>
         </div>
@@ -86,12 +86,12 @@ const Quotations = () => {
       label: "Amount",
       render: (row) => (
         <div>
-          <div className="font-medium text-gray-900">
-            ₹{parseFloat(row.estimated_amount).toLocaleString()}
+          <div className="font-semibold text-emerald-500">
+            $ Estimated: {parseFloat(row.estimated_amount).toLocaleString()}
           </div>
           {row.final_amount && (
-            <div className="text-sm text-gray-500">
-              Final: ₹{parseFloat(row.final_amount).toLocaleString()}
+            <div className="text-sm text-gray-500 font-semibold">
+              Final: $ {parseFloat(row.final_amount).toLocaleString()}
             </div>
           )}
         </div>
@@ -148,7 +148,7 @@ const Quotations = () => {
   const fetchQuotations = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await getQuotations(token);
+      const response = await getQuotations(token, page);
       if (response.status && response.data) {
         setQuotations(response.data.data);
         setPagination({
@@ -169,7 +169,7 @@ const Quotations = () => {
   };
 
   useEffect(() => {
-    fetchQuotations();
+    fetchQuotations(1);
   }, [token]);
 
   const handlePageChange = (page) => {
@@ -233,8 +233,6 @@ const Quotations = () => {
 
   return (
     <div className="">
-     
-
       {loading ? (
         <Loader size="large" fullScreen />
       ) : (

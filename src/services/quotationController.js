@@ -4,13 +4,16 @@ import config from "../config";
 const BASE_URL = config.api.baseUrl;
 
 // Get all quotations
-export const getQuotations = async (token) => {
+export const getQuotations = async (token, page = 1) => {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/quotation/getQuotations`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
+        },
+        params: {
+          page: page,
         },
       }
     );

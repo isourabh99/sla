@@ -1,13 +1,7 @@
-import { Toaster } from "sonner";
 import LoginForm from "./LoginForm";
 import slaLogo from "../assets/sla-logo.png";
 import { motion } from "framer-motion";
-import {
-  FaShieldAlt,
-  FaChartLine,
-  FaUsers,
-  FaClock,
-} from "react-icons/fa";
+import { FaShieldAlt, FaChartLine, FaUsers, FaClock } from "react-icons/fa";
 
 const LoginPage = () => {
   const features = [
@@ -30,23 +24,6 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen overflow-hidden flex bg-gradient-to-br from-[#387DB2] to-[#3D356E]">
-      <Toaster
-        position="top-right"
-        richColors
-        toastOptions={{
-          className:
-            "bg-white/90 backdrop-blur-sm text-gray-800 border border-gray-200 shadow-lg rounded-lg p-4",
-          success: {
-            className:
-              "bg-green-50/90 backdrop-blur-sm border border-green-200 text-green-800",
-          },
-          error: {
-            className:
-              "bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-800",
-          },
-        }}
-      />
-
       {/* Left Section - Image/Logo */}
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative">
         <motion.div

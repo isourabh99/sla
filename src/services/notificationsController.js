@@ -5,7 +5,7 @@ const BASE_URL = config.api.baseUrl;
 
 export const getNotifications = async (token) => {
   try {
-    const response = await axios.get(`${BASE_URL}/admin/getNotifications`, {
+    const response = await axios.get(`${BASE_URL}/getNotifications`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -19,7 +19,7 @@ export const getNotifications = async (token) => {
 export const markNotificationAsRead = async (notificationId, token) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/admin/mark-notification-read?notification_id=${notificationId}`,
+      `${BASE_URL}/mark-notification-read?notification_id=${notificationId}`,
       {},
       {
         headers: {
