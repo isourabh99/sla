@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
   return (
     <div className="relative">
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-30">
+      <div className="fixed top-0 left-0 right-0 z-50">
         <Header
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
@@ -27,9 +27,7 @@ const Layout = ({ children }) => {
         />
       </div>
       {/* Left Sidebar */}
-      <div className="fixed top-0 left-0 z-20">
-        <Sidebar isOpen={isSidebarOpen} />
-      </div>
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       {/* Right Notifications Sidebar */}
       <div className="fixed top-0 right-0 z-50">
         <Notifications
@@ -40,7 +38,7 @@ const Layout = ({ children }) => {
       {/* Main Content (scrollable) */}
       <div
         className={`overflow-y-auto bg-gray-50 mt-8 relative z-10 ${
-          isSidebarOpen ? "ml-[260px]" : "ml-0"
+          isSidebarOpen ? "ml-0 md:ml-[230px]" : "ml-[30px]"
         }`}
       >
         {children}

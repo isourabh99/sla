@@ -99,54 +99,34 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
   }, [notifications]);
 
   return (
-    <header className="bg-gradient-to-r from-[#387DB2] to-[#3D356E] p-2 text-white">
+    <header className="bg-gradient-to-r from-[#387DB2] to-[#3D356E]  text-white p-2">
       <audio ref={audioRef} src={notifee} preload="auto" />
-      <div className="mx-auto flex justify-between items-center">
-        <div className="flex items-center gap-24">
-          <motion.div className="flex items-center justify-center">
-            <img src={logo} alt="logo" className="w-32 brightness-0 invert" />
-          </motion.div>
-          <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-full hover:bg-white/10 "
-          >
-            {isSidebarOpen ? (
-              <IoCloseOutline size={20} />
-            ) : (
-              <RiMenu2Fill size={20} />
-            )}
-          </button>
-        </div>
+      <div className="flex justify-between items-center">
+        <div />
         <div className="flex items-center gap-4">
           <motion.div
-            whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={toggleNotifications}
-            className="relative text-lg p-2 rounded-full cursor-pointer hover:bg-white/10 "
+            className="relative text-lg p-2 rounded cursor-pointer hover:bg-white/10 "
           >
             <FaBell />
             {unreadNotifications > 0 && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold"
-              >
+              <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                 {unreadNotifications > 99 ? "99+" : unreadNotifications}
-              </motion.div>
+              </div>
             )}
           </motion.div>
           <div className="relative" ref={profileRef}>
             <motion.div
-              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="text-lg p-2 rounded-full cursor-pointer hover:bg-white/10 "
+              className="text-lg p-1 rounded cursor-pointer hover:bg-white/10 "
             >
               {profileData?.profile_picture ? (
                 <img
                   src={profileData.profile_picture}
                   alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-8 h-8 rounded object-cover"
                 />
               ) : (
                 <FaUser />
