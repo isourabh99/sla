@@ -110,7 +110,7 @@ const PartnerDetails = () => {
                 </h1>
                 <div className="mt-1 flex items-center space-x-4">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
                       partner?.status === "approved"
                         ? "bg-green-100 text-green-800"
                         : "bg-yellow-100 text-yellow-800"

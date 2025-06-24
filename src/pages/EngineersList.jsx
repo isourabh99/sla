@@ -101,7 +101,7 @@ const EngineersList = () => {
       label: "Status",
       render: (row) => (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+          className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${
             row.status === "approved"
               ? "bg-green-100 text-green-800"
               : "bg-yellow-100 text-yellow-800"

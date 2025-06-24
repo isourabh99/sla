@@ -297,26 +297,30 @@ const BusinessSettings = () => {
   }
 
   return (
-    <div className="p-4">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
-        <h1 className="text-xl font-semibold text-gray-500">
-          Settings <span className="text-base">• Business Setting</span>
-        </h1>
-      </div>
+    <div className="bg-gray-50 min-h-[calc(100vh-64px)] p-2 md:p-4">
+      <div className="w-full bg-white rounded-xl shadow p-2 md:p-8 ">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-6">
+          <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
+          <h1 className="text-base md:text-xl font-semibold text-gray-500">
+            Settings{" "}
+            <span className="text-xs md:text-base">• Business Setting</span>
+          </h1>
+        </div>
 
-      <div className="max-w-4xl">
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+        <div className="mb-6 border-b border-gray-200 overflow-x-auto">
+          <nav
+            className="-mb-px flex flex-nowrap space-x-4 md:space-x-6"
+            aria-label="Tabs"
+          >
             {Object.values(TABS).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
+                className={`$${
                   activeTab === tab
                     ? "border-[#387DB2] text-[#387DB2]"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-all`}
+                } whitespace-nowrap py-3 px-2 md:px-4 border-b-2 font-medium text-sm transition-all`}
               >
                 {tab}
               </button>
@@ -327,7 +331,7 @@ const BusinessSettings = () => {
         {activeTab === TABS.BUSINESS_INFO ||
         activeTab === TABS.MAINTENANCE ||
         activeTab === TABS.PROFESSIONAL_SERVICES ? (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-4">
             {renderContent()}
             <div className="mt-8">
               <motion.button
@@ -335,7 +339,7 @@ const BusinessSettings = () => {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full md:w-auto px-6 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <div className="flex items-center gap-2">
@@ -349,7 +353,7 @@ const BusinessSettings = () => {
             </div>
           </form>
         ) : activeTab === TABS.TERMS_CONDITIONS ? (
-          <form onSubmit={handleTermsSubmit}>
+          <form onSubmit={handleTermsSubmit} className="space-y-4">
             {renderContent()}
             <div className="mt-8">
               <motion.button
@@ -357,7 +361,7 @@ const BusinessSettings = () => {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full md:w-auto px-6 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <div className="flex items-center gap-2">
@@ -377,9 +381,9 @@ const BusinessSettings = () => {
 
       {editingService && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md">
             <h3 className="text-lg font-semibold mb-4">Edit Service</h3>
-            <form onSubmit={handleEditFormSubmit}>
+            <form onSubmit={handleEditFormSubmit} className="space-y-4">
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Name</label>
                 <input
@@ -419,10 +423,10 @@ const BusinessSettings = () => {
                   required
                 />
               </div>
-              <div className="flex justify-end gap-2">
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
                 <button
                   type="button"
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 w-full sm:w-auto"
                   onClick={handleEditModalClose}
                   disabled={editSubmitting}
                 >
@@ -430,7 +434,7 @@ const BusinessSettings = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#387DB2] text-white rounded hover:bg-[#2d6a99]"
+                  className="px-4 py-2 bg-[#387DB2] text-white rounded hover:bg-[#2d6a99] w-full sm:w-auto"
                   disabled={editSubmitting}
                 >
                   {editSubmitting ? "Saving..." : "Save"}
@@ -443,17 +447,17 @@ const BusinessSettings = () => {
 
       {deletingService && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md">
             <h3 className="text-lg font-semibold mb-4">Delete Service</h3>
             <p className="mb-6">
               Are you sure you want to delete{" "}
               <span className="font-bold">{deletingService.name}</span>? This
               action cannot be undone.
             </p>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
               <button
                 type="button"
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 w-full sm:w-auto"
                 onClick={handleDeleteModalClose}
                 disabled={deleteSubmitting}
               >
@@ -461,7 +465,7 @@ const BusinessSettings = () => {
               </button>
               <button
                 type="button"
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 w-full sm:w-auto"
                 onClick={handleDeleteConfirm}
                 disabled={deleteSubmitting}
               >

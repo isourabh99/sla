@@ -106,9 +106,9 @@ const BrandList = () => {
       <div className="flex justify-between items-center mb-6">
         <Link
           to="/brands/create"
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-lg font-medium  transition-all duration-300"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-lg font-medium  transition-all duration-300 text-sm"
         >
-          <FaPlus className="w-4 h-4" />
+          <FaPlus className="" />
           Add New Brand
         </Link>
 
@@ -120,7 +120,7 @@ const BrandList = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search brands..."
-              className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full  py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
           </div>

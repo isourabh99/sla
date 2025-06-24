@@ -62,7 +62,7 @@ const DataTable = ({
 
   return (
     <div className={`p-4 ${className}`}>
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between md:items-center mb-6">
         {title && (
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>

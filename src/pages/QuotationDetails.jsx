@@ -57,6 +57,7 @@ const QuotationDetails = () => {
       setLoading(true);
       const response = await getQuotationDetails(token, quotationId);
       if (response && response.status && response.data) {
+        console.log(response.data);
         setQuotation(response.data);
       }
       setError(null);
@@ -109,6 +110,7 @@ const QuotationDetails = () => {
     try {
       const response = await getOffersByQuotation(token, quotationId);
       if (response && response.status && response.data) {
+        console.log(response.data);
         setOffers(response.data);
       }
     } catch (err) {
@@ -162,6 +164,7 @@ const QuotationDetails = () => {
       await updateOfferStatus(token, offerId, newStatus);
       toast.success(`Offer status updated to ${newStatus} successfully`);
       fetchOffers(); // Refresh the offers list
+      window.location.reload();
     } catch (error) {
       toast.error(error.message || "Failed to update offer status");
     } finally {
@@ -258,12 +261,12 @@ const QuotationDetails = () => {
                     Quotation #{quotation.id}
                   </h1>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-sm font-medium ${
+                    className={`px-2 py-0.5 rounded-full text-sm font-medium capitalize ${
                       quotation.status === "approved"
                         ? "bg-green-100 text-green-800"
                         : quotation.status === "pending"
                         ? "bg-yellow-100 text-yellow-800"
-                        : "bg-gray-100 text-gray-800"
+                        : "bg-emerald-100 text-gray-800"
                     }`}
                   >
                     {quotation.status}
@@ -277,11 +280,11 @@ const QuotationDetails = () => {
             <div className="text-right">
               <div className="text-sm text-emerald-500">Estimated Amount</div>
               <div className="text-sm font-bold text-gray-900">
-               ${parseFloat(quotation.estimated_amount).toLocaleString()}
+                ${parseFloat(quotation.estimated_amount).toLocaleString()}
               </div>
               <div className="text-sm text-blue-500">Final Amount</div>
               <div className="text-sm font-bold text-gray-900">
-               ${parseFloat(quotation.final_amount).toLocaleString()}
+                ${parseFloat(quotation.final_amount).toLocaleString()}
               </div>
             </div>
           </div>
@@ -336,7 +339,7 @@ const QuotationDetails = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Category:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 capitalize">
                     {quotation.service_category}
                   </span>
                 </div>
@@ -348,7 +351,7 @@ const QuotationDetails = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Support:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 capitalize">
                     {quotation.support_type}
                   </span>
                 </div>
@@ -577,9 +580,9 @@ const QuotationDetails = () => {
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Amount
                         </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
-                        </th>
+                        </th> */}
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Note
                         </th>
@@ -611,41 +614,57 @@ const QuotationDetails = () => {
                             </div>
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                           ${parseFloat(offer.offered_amount).toLocaleString()}
+                            ${parseFloat(offer.offered_amount).toLocaleString()}
                           </td>
-                          <td className="px-4 py-2 text-sm">
+                          {/* <td className="px-4 py-2 text-sm">
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                offer.status === "approved"
+                                offer.status === "Approved"
                                   ? "bg-green-100 text-green-800"
-                                  : offer.status === "pending"
+                                  : offer.status === "Pending"
                                   ? "bg-yellow-100 text-yellow-800"
                                   : "bg-gray-100 text-gray-800"
                               }`}
                             >
                               {offer.status}
                             </span>
-                          </td>
+                          </td> */}
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {offer.note}
                           </td>
                           <td className="px-4 py-2 text-sm">
                             <div className="flex gap-2">
                               {offer.status === "pending" && (
-                                <button
-                                  onClick={() =>
-                                    handleUpdateOfferStatus(
-                                      offer.id,
-                                      "approved"
-                                    )
-                                  }
-                                  disabled={updatingOfferStatus}
-                                  className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  {updatingOfferStatus
-                                    ? "Updating..."
-                                    : "Approve"}
-                                </button>
+                                <>
+                                  <button
+                                    onClick={() =>
+                                      handleUpdateOfferStatus(
+                                        offer.id,
+                                        "approved"
+                                      )
+                                    }
+                                    disabled={updatingOfferStatus}
+                                    className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {updatingOfferStatus
+                                      ? "Updating..."
+                                      : "Approve"}
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleUpdateOfferStatus(
+                                        offer.id,
+                                        "rejected"
+                                      )
+                                    }
+                                    disabled={updatingOfferStatus}
+                                    className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {updatingOfferStatus
+                                      ? "Updating..."
+                                      : "Reject"}
+                                  </button>
+                                </>
                               )}
                               {offer.status === "approved" && (
                                 <span className="text-xs text-green-600 font-medium">
@@ -688,23 +707,27 @@ const QuotationDetails = () => {
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Quantity
                         </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Price
-                        </th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Unit Price
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Total Price
+                            </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {quotation.spare_parts.map((part, index) => (
                         <tr key={index}>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {part.name}
+                            {part.spare_part.name || "N/A"}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {part.quantity}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                           ${parseFloat(part.price).toLocaleString()}
+                            ${parseFloat(part.unit_price).toLocaleString()}
                           </td>
+                          <td className="px-4 py-2 text-sm text-gray-900">{part.total_price}</td>
                         </tr>
                       ))}
                     </tbody>

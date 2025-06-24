@@ -250,29 +250,29 @@ const Profile = () => {
         {/* Profile Details */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center justify-between">
+            <h2 className="md:text-xl font-semibold mb-4 text-gray-800 flex items-center justify-between">
               Profile Information
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setIsChangingPassword(!isChangingPassword)}
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded   flex items-center gap-2"
-                >
-                  <FaLock className="text-lg" />
-                  <span className="text-sm">
-                    {isChangingPassword ? "Cancel" : "Change Password"}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded   flex items-center gap-2"
-                >
-                  <FaUserEdit className="text-lg" />
-                  <span className="text-sm">
-                    {isEditing ? "Cancel" : "Edit Profile"}
-                  </span>
-                </button>
-              </div>
             </h2>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto mt-4 mb-2">
+              <button
+                onClick={() => setIsChangingPassword(!isChangingPassword)}
+                className="w-full sm:w-auto text-center px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm bg-[#387DB2] hover:bg-[#285c8c] text-white rounded-lg shadow mb-2 sm:mb-0 flex items-center justify-center gap-2 transition-colors"
+              >
+                <FaLock className="text-lg" />
+                <span className="text-xs sm:text-sm">
+                  {isChangingPassword ? "Cancel" : "Change Password"}
+                </span>
+              </button>
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="w-full sm:w-auto text-center px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm bg-[#2dd4bf] hover:bg-[#14b8a6] text-white rounded-lg shadow flex items-center justify-center gap-2 transition-colors"
+              >
+                <FaUserEdit className="text-lg" />
+                <span className="text-xs sm:text-sm">
+                  {isEditing ? "Cancel" : "Edit Profile"}
+                </span>
+              </button>
+            </div>
 
             <AnimatePresence mode="wait">
               {isChangingPassword ? (

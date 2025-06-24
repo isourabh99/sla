@@ -133,7 +133,7 @@ const EngineerDetails = () => {
                   >
                     {engineer?.status}
                   </span>
-                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 capitalize">
                     {engineer?.user_type || "N/A"}
                   </span>
                   <span className="text-sm text-gray-500">

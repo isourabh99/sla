@@ -88,7 +88,7 @@ const StaffList = () => {
       key: "user_type",
       label: "Role",
       render: (row) => (
-        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 capitalize">
           {row.user_type}
         </span>
       ),

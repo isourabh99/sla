@@ -157,7 +157,7 @@ const CreateStaff = () => {
         </h1>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex gap-6 md:flex-row flex-col">
         {/* Profile Picture Card */}
         <div className="flex-1">
           <div className="bg-white rounded-lg shadow-md p-6">

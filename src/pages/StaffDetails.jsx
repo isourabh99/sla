@@ -384,7 +384,7 @@ const StaffDetails = () => {
                   </p>
                   <p className="text-gray-600">
                     <span className="font-medium">Role:</span>{" "}
-                    <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                    <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 capitalize">
                       {staffDetails.user_type}
                     </span>
                   </p>
