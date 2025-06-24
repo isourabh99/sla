@@ -66,7 +66,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       width: "260px",
     },
     closed: {
-      width: "58px",
+      width: "60px",
     },
   };
 
@@ -81,19 +81,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       {/* Logo and Menu Icon */}
       {isOpen ? (
         <div className="flex items-center justify-between py-1  border-b border-white/10">
-          {/* <div className="flex items-center"> */}
           <img src={logo} alt="logo" className="w-30 brightness-0 invert" />
-          {/* </div> */}
-          {/* <div className="flex items-center justify-center "> */}
           <button onClick={toggleSidebar} className="  mx-2">
-            <RiCloseFill size={20} />
+            <RiCloseFill size={26} />
           </button>
-          {/* </div> */}
         </div>
       ) : (
         <div className="flex items-center justify-center py-4  border-b border-white/10">
           <button onClick={toggleSidebar}>
-            <RiMenu2Fill size={20} />
+            <RiMenu2Fill size={25} />
           </button>
         </div>
       )}

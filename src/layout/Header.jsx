@@ -99,10 +99,9 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
   }, [notifications]);
 
   return (
-    <header className="bg-gradient-to-r from-[#387DB2] to-[#3D356E]  text-white p-2">
+    <header className="bg-gradient-to-r from-[#387DB2] to-[#3D356E]  text-white p-2.5">
       <audio ref={audioRef} src={notifee} preload="auto" />
-      <div className="flex justify-between items-center">
-        <div />
+      <div className="flex justify-end items-center">
         <div className="flex items-center gap-4">
           <motion.div
             whileTap={{ scale: 0.95 }}
