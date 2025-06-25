@@ -32,7 +32,7 @@ const EngineerDetails = () => {
     try {
       setLoading(true);
       const response = await getEngineerDetails(token, engineerId);
-      console.log("API Response:", response);
+      // console.log("API Response:", response);
       if (response && response.status && response.data) {
         setEngineer(response.data);
         // If brand_id exists, fetch brand details

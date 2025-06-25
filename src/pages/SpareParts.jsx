@@ -80,10 +80,10 @@ const SpareParts = () => {
 
       if (activeTab === "supplier") {
         setSupplierSpareParts(sparePartsData);
-        console.log(sparePartsData);
+        // console.log(sparePartsData);
       } else {
         setCustomerSpareParts(sparePartsData);
-        console.log(sparePartsData);
+        // console.log(sparePartsData);
       }
 
       setPagination({

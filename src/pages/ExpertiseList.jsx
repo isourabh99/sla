@@ -108,7 +108,7 @@ const ExpertiseList = () => {
       console.log("API Response:", response);
       const expertiseData = response.data?.data || response.data || [];
       setExpertise(expertiseData);
-      console.log("Expertise data:", expertiseData);
+      // console.log("Expertise data:", expertiseData);
       setPagination({
         currentPage: response.data?.current_page || response.current_page || 1,
         lastPage: response.data?.last_page || response.last_page || 1,

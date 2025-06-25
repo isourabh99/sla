@@ -25,7 +25,7 @@ const SupplierDetails = () => {
     try {
       setLoading(true);
       const response = await getSupplierDetails(token, supplierId);
-      console.log("API Response:", response);
+      // console.log("API Response:", response);
       if (response && response.status && response.data) {
         setSupplier(response.data);
       }

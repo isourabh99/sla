@@ -18,7 +18,7 @@ export const getQuotations = async (token, page = 1) => {
       }
     );
 
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

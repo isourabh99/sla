@@ -32,7 +32,7 @@ const PartnerDetails = () => {
     try {
       setLoading(true);
       const response = await getPartnerDetails(token, partnerId);
-      console.log("API Response:", response);
+      // console.log("API Response:", response);
       if (response && response.status && response.data) {
         setPartner(response.data);
       }

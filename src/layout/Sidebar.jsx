@@ -95,7 +95,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       )}
       <div className="flex flex-col h-full">
         {/* Navigation Menu */}
-        <nav className="flex-1 p-3 overflow-y-auto ">
+        <nav
+          className="flex-1 p-3 overflow-y-auto"
+          style={{ maxHeight: "calc(100vh - 120px)" }}
+        >
           <ul className="space-y-1">
             {menuItems.map((item, index) => (
               <li key={index}>
@@ -322,8 +325,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </div>
           </ul>
         </nav>
-        {/* Bottom Section */}
-        <div className="p-2 border-t border-white/10">
+        {/* Bottom Section - Fixed at bottom */}
+        <div className="p-2 border-t border-white/10 mt-auto">
           <div className="space-y-1">
             {/* Logout Button */}
             <button

@@ -57,7 +57,7 @@ const QuotationDetails = () => {
       setLoading(true);
       const response = await getQuotationDetails(token, quotationId);
       if (response && response.status && response.data) {
-        console.log(response.data);
+        // console.log(response.data);
         setQuotation(response.data);
       }
       setError(null);
@@ -110,7 +110,7 @@ const QuotationDetails = () => {
     try {
       const response = await getOffersByQuotation(token, quotationId);
       if (response && response.status && response.data) {
-        console.log(response.data);
+        // console.log(response.data);
         setOffers(response.data);
       }
     } catch (err) {

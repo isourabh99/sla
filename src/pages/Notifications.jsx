@@ -58,7 +58,7 @@ const Notifications = ({ isOpen, onClose }) => {
       let notifications = [];
       if (Array.isArray(data.data.notifications)) {
         notifications = data.data.notifications;
-        console.log(notifications);
+        // console.log(notifications);
       } else if (data && Array.isArray(data.data)) {
         notifications = data.data;
       } else if (data && data.data && Array.isArray(data.data.notification)) {
