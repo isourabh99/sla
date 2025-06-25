@@ -41,11 +41,14 @@ export const getBrandsForModel = async (token) => {
 };
 
 // Get all models
-export const getModels = async (token) => {
+export const getModels = async (token, page = 1) => {
   try {
     const response = await axios.get(`${BASE_URL}/admin/models/getModels`, {
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+      params: {
+        page: page,
       },
     });
 

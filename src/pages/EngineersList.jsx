@@ -17,11 +17,10 @@ const EngineersList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
-    current_page: 1,
-    last_page: 1,
-    per_page: 10,
+    currentPage: 1,
+    lastPage: 1,
+    perPage: 10,
     total: 0,
-    links: [],
   });
   const { token } = useAuth();
   const navigate = useNavigate();
@@ -32,7 +31,7 @@ const EngineersList = () => {
       label: "S.No.",
       render: (row, index) => (
         <div className="text-sm font-medium text-gray-500">
-          {(pagination.current_page - 1) * pagination.per_page + index + 1}
+          {(pagination.currentPage - 1) * pagination.perPage + index + 1}
         </div>
       ),
     },
@@ -172,11 +171,10 @@ const EngineersList = () => {
       if (data.status && data.data) {
         setEngineers(data.data.data);
         setPagination({
-          current_page: data.data.current_page,
-          last_page: data.data.last_page,
-          per_page: data.data.per_page,
+          currentPage: data.data.current_page,
+          lastPage: data.data.last_page,
+          perPage: data.data.per_page,
           total: data.data.total,
-          links: data.data.links,
         });
       }
       setError(null);
@@ -196,14 +194,16 @@ const EngineersList = () => {
     try {
       await updateEngineerStatus(token, engineerId, status);
       toast.success("Engineer status updated successfully");
-      fetchEngineers(pagination.current_page); // Refresh current page
+      fetchEngineers(pagination.currentPage); // Refresh current page
     } catch (err) {
       toast.error(err.message || "Failed to update engineer status");
     }
   };
 
-  const handlePageChange = (page) => {
-    fetchEngineers(page);
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.lastPage) {
+      fetchEngineers(newPage);
+    }
   };
 
   const handleRowClick = (row) => {
@@ -214,15 +214,29 @@ const EngineersList = () => {
 
   const renderPagination = () => {
     const pages = [];
-    for (let i = 1; i <= pagination.last_page; i++) {
+    const maxVisiblePages = 5;
+    let startPage = Math.max(
+      1,
+      pagination.currentPage - Math.floor(maxVisiblePages / 2)
+    );
+    let endPage = Math.min(
+      pagination.lastPage,
+      startPage + maxVisiblePages - 1
+    );
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 rounded ${
-            pagination.current_page === i
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            pagination.currentPage === i
+              ? "bg-blue-600 text-white shadow-sm"
+              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400"
           }`}
         >
           {i}
@@ -231,28 +245,52 @@ const EngineersList = () => {
     }
 
     return (
-      <div className="flex items-center justify-between m-4">
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
         <div className="text-sm text-gray-700">
-          Showing {(pagination.current_page - 1) * pagination.per_page + 1} to{" "}
+          Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
           {Math.min(
-            pagination.current_page * pagination.per_page,
+            pagination.currentPage * pagination.perPage,
             pagination.total
           )}{" "}
           of {pagination.total} entries
         </div>
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => handlePageChange(pagination.current_page - 1)}
-            disabled={pagination.current_page === 1}
-            className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={pagination.currentPage === 1}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
           >
             Previous
           </button>
+          {startPage > 1 && (
+            <>
+              <button
+                onClick={() => handlePageChange(1)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors"
+              >
+                1
+              </button>
+              {startPage > 2 && <span className="px-2 text-gray-500">...</span>}
+            </>
+          )}
           {pages}
+          {endPage < pagination.lastPage && (
+            <>
+              {endPage < pagination.lastPage - 1 && (
+                <span className="px-2 text-gray-500">...</span>
+              )}
+              <button
+                onClick={() => handlePageChange(pagination.lastPage)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors"
+              >
+                {pagination.lastPage}
+              </button>
+            </>
+          )}
           <button
-            onClick={() => handlePageChange(pagination.current_page + 1)}
-            disabled={pagination.current_page === pagination.last_page}
-            className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={pagination.currentPage === pagination.lastPage}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
           >
             Next
           </button>
@@ -289,7 +327,7 @@ const EngineersList = () => {
       {loading ? (
         <Loader size="large" fullScreen />
       ) : (
-        <>
+        <div>
           <DataTable
             title="Engineers Management"
             subtitle={`${
@@ -300,11 +338,9 @@ const EngineersList = () => {
             loading={loading}
             error={error}
             onRowClick={handleRowClick}
-            pagination={pagination}
-            onPageChange={handlePageChange}
           />
           {!error && engineers.length > 0 && renderPagination()}
-        </>
+        </div>
       )}
     </div>
   );

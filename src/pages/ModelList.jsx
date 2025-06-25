@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiEdit2 } from "react-icons/fi";
+import { FiEdit2, FiX } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
 import {
   getModels,
@@ -217,15 +217,29 @@ const ModelList = () => {
 
   const renderPagination = () => {
     const pages = [];
-    for (let i = 1; i <= pagination.lastPage; i++) {
+    const maxVisiblePages = 5;
+    let startPage = Math.max(
+      1,
+      pagination.currentPage - Math.floor(maxVisiblePages / 2)
+    );
+    let endPage = Math.min(
+      pagination.lastPage,
+      startPage + maxVisiblePages - 1
+    );
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
             pagination.currentPage === i
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? "bg-blue-600 text-white shadow-sm"
+              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400"
           }`}
         >
           {i}
@@ -234,7 +248,7 @@ const ModelList = () => {
     }
 
     return (
-      <div className="flex items-center justify-between m-4">
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
         <div className="text-sm text-gray-700">
           Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
           {Math.min(
@@ -247,15 +261,39 @@ const ModelList = () => {
           <button
             onClick={() => handlePageChange(pagination.currentPage - 1)}
             disabled={pagination.currentPage === 1}
-            className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
           >
             Previous
           </button>
+          {startPage > 1 && (
+            <>
+              <button
+                onClick={() => handlePageChange(1)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors"
+              >
+                1
+              </button>
+              {startPage > 2 && <span className="px-2 text-gray-500">...</span>}
+            </>
+          )}
           {pages}
+          {endPage < pagination.lastPage && (
+            <>
+              {endPage < pagination.lastPage - 1 && (
+                <span className="px-2 text-gray-500">...</span>
+              )}
+              <button
+                onClick={() => handlePageChange(pagination.lastPage)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors"
+              >
+                {pagination.lastPage}
+              </button>
+            </>
+          )}
           <button
             onClick={() => handlePageChange(pagination.currentPage + 1)}
             disabled={pagination.currentPage === pagination.lastPage}
-            className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
           >
             Next
           </button>
@@ -294,7 +332,9 @@ const ModelList = () => {
               <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
-              ></button>
+              >
+                <FiX className="w-4 h-4" />
+              </button>
             </div>
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div>

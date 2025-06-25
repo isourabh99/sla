@@ -104,14 +104,16 @@ const ExpertiseList = () => {
   const fetchExpertise = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await getExpertise(token);
-      setExpertise(response.data.data);
-      console.log(response.data.data);
+      const response = await getExpertise(token, page, pagination.perPage);
+      console.log("API Response:", response);
+      const expertiseData = response.data?.data || response.data || [];
+      setExpertise(expertiseData);
+      console.log("Expertise data:", expertiseData);
       setPagination({
-        currentPage: response.data.current_page,
-        lastPage: response.data.last_page,
-        total: response.data.total,
-        perPage: response.data.per_page,
+        currentPage: response.data?.current_page || response.current_page || 1,
+        lastPage: response.data?.last_page || response.last_page || 1,
+        total: response.data?.total || response.total || 0,
+        perPage: response.data?.per_page || response.per_page || 10,
       });
       setError(null);
     } catch (err) {
@@ -123,11 +125,16 @@ const ExpertiseList = () => {
   };
 
   useEffect(() => {
-    fetchExpertise();
+    fetchExpertise(1);
   }, [token]);
 
   const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= pagination.lastPage) {
+    if (
+      newPage >= 1 &&
+      newPage <= pagination.lastPage &&
+      newPage !== pagination.currentPage
+    ) {
+      setPagination((prev) => ({ ...prev, currentPage: newPage }));
       fetchExpertise(newPage);
     }
   };
@@ -258,7 +265,12 @@ const ExpertiseList = () => {
             loading={loading}
             error={error}
           />
-          {!error && expertise.length > 0 && renderPagination()}
+          {!error && expertise.length === 0 && pagination.total === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No expertise found. Create your first expertise to get started.
+            </div>
+          )}
+          {!error && pagination.lastPage > 1 && renderPagination()}
         </div>
       )}
 

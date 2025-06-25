@@ -23,11 +23,21 @@ export const createExpertise = async (expertiseData, token) => {
 };
 
 // Get expertise list
-export const getExpertise = async (token) => {
+export const getExpertise = async (
+  token,
+  page = 1,
+  perPage = 10,
+  search = ""
+) => {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/expertise/getExpertiseList`,
       {
+        params: {
+          page,
+          per_page: perPage,
+          search,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },
