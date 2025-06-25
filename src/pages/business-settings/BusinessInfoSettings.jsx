@@ -48,6 +48,19 @@ const BusinessInfoSettings = ({ settings, handleChange }) => {
             placeholder="Enter business phone"
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Business Address
+          </label>
+          <input
+            type="tel"
+            name="address"
+            value={settings.address || ""}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#387DB2] focus:border-transparent transition-all duration-200"
+            placeholder="Enter business address"
+          />
+        </div>
       </div>
     </div>
   );
