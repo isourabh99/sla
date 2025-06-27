@@ -75,7 +75,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       initial={isOpen ? "open" : "closed"}
       animate={isOpen ? "open" : "closed"}
       variants={sidebarVariants}
-      className={`fixed top-0 left-0 h-full bg-gradient-to-b from-[#387DB2] to-[#3D356E] text-white  z-50 flex flex-col `}
+      className={`fixed top-0 left-0 h-full bg-gradient-to-b from-[#387DB2] to-[#3D356E] text-white  z-30 flex flex-col `}
       style={{ overflow: "hidden" }}
     >
       {/* Logo and Menu Icon */}

@@ -11,6 +11,7 @@ import Loader from "../components/Loader";
 import BusinessInfoSettings from "./business-settings/BusinessInfoSettings";
 import MaintenanceSettings from "./business-settings/MaintenanceSettings";
 import ProfessionalServicesSettings from "./business-settings/ProfessionalServicesSettings";
+import ProfessionalServicesList from "./business-settings/ProfessionalServicesList";
 import SoftwareCloudSettings from "./business-settings/SoftwareCloudSettings";
 import TermsConditionsSettings from "./business-settings/TermsConditionsSettings";
 import {
@@ -19,6 +20,12 @@ import {
   updateSoftwareCloudService,
   deleteSoftwareCloudService,
 } from "../services/softwareCloudServiceController";
+import {
+  getProfessionalServices,
+  addProfessionalService,
+  updateProfessionalService,
+  deleteProfessionalService,
+} from "../services/professionalServiceController";
 import { getTerms, storeTerms } from "../services/termsController";
 
 const TABS = {
@@ -58,9 +65,25 @@ const BusinessSettings = () => {
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [termsContent, setTermsContent] = useState("");
 
+  // Professional Services state
+  const [professionalServices, setProfessionalServices] = useState([]);
+  const [editingProfessionalService, setEditingProfessionalService] =
+    useState(null);
+  const [editProfessionalForm, setEditProfessionalForm] = useState({
+    name: "",
+    price: "",
+  });
+  const [editProfessionalSubmitting, setEditProfessionalSubmitting] =
+    useState(false);
+  const [deletingProfessionalService, setDeletingProfessionalService] =
+    useState(null);
+  const [deleteProfessionalSubmitting, setDeleteProfessionalSubmitting] =
+    useState(false);
+
   useEffect(() => {
     fetchSettings();
     fetchServices();
+    fetchProfessionalServices();
     fetchTerms();
   }, []);
 
@@ -85,6 +108,17 @@ const BusinessSettings = () => {
       }
     } catch (error) {
       toast.error("Failed to fetch software/cloud services");
+    }
+  };
+
+  const fetchProfessionalServices = async () => {
+    try {
+      const response = await getProfessionalServices(token);
+      if (response.status) {
+        setProfessionalServices(response.data || []);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch professional services");
     }
   };
 
@@ -248,6 +282,101 @@ const BusinessSettings = () => {
     }
   };
 
+  // Professional Services handlers
+  const handleAddProfessionalService = async (serviceData) => {
+    try {
+      const response = await addProfessionalService(serviceData, token);
+      if (response.status) {
+        toast.success("Professional service added successfully");
+        fetchProfessionalServices();
+        return true;
+      } else {
+        toast.error(response.message || "Failed to add professional service");
+        return false;
+      }
+    } catch (error) {
+      toast.error("Failed to add professional service");
+      return false;
+    }
+  };
+
+  const handleEditProfessionalService = (service) => {
+    setEditingProfessionalService(service);
+    setEditProfessionalForm({
+      name: service.name,
+      price: service.price.toString(),
+    });
+  };
+
+  const handleEditProfessionalFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditProfessionalForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditProfessionalFormSubmit = async (e) => {
+    e.preventDefault();
+    setEditProfessionalSubmitting(true);
+    try {
+      const response = await updateProfessionalService(
+        editingProfessionalService.id,
+        {
+          name: editProfessionalForm.name,
+          price: parseFloat(editProfessionalForm.price) || 0,
+        },
+        token
+      );
+      if (response.status) {
+        toast.success("Professional service updated successfully");
+        setEditingProfessionalService(null);
+        fetchProfessionalServices();
+      } else {
+        toast.error(
+          response.message || "Failed to update professional service"
+        );
+      }
+    } catch (error) {
+      toast.error("Failed to update professional service");
+    } finally {
+      setEditProfessionalSubmitting(false);
+    }
+  };
+
+  const handleEditProfessionalModalClose = () => {
+    setEditingProfessionalService(null);
+  };
+
+  const handleDeleteProfessionalService = (service) => {
+    setDeletingProfessionalService(service);
+  };
+
+  const handleDeleteProfessionalConfirm = async () => {
+    if (!deletingProfessionalService) return;
+    setDeleteProfessionalSubmitting(true);
+    try {
+      const response = await deleteProfessionalService(
+        deletingProfessionalService.id,
+        token
+      );
+      if (response.status) {
+        toast.success("Professional service deleted successfully");
+        setDeletingProfessionalService(null);
+        fetchProfessionalServices();
+      } else {
+        toast.error(
+          response.message || "Failed to delete professional service"
+        );
+      }
+    } catch (error) {
+      toast.error("Failed to delete professional service");
+    } finally {
+      setDeleteProfessionalSubmitting(false);
+    }
+  };
+
+  const handleDeleteProfessionalModalClose = () => {
+    setDeletingProfessionalService(null);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case TABS.BUSINESS_INFO:
@@ -328,9 +457,7 @@ const BusinessSettings = () => {
           </nav>
         </div>
 
-        {activeTab === TABS.BUSINESS_INFO ||
-        activeTab === TABS.MAINTENANCE ||
-        activeTab === TABS.PROFESSIONAL_SERVICES ? (
+        {activeTab === TABS.BUSINESS_INFO || activeTab === TABS.MAINTENANCE ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             {renderContent()}
             <div className="mt-8">
@@ -352,6 +479,23 @@ const BusinessSettings = () => {
               </motion.button>
             </div>
           </form>
+        ) : activeTab === TABS.PROFESSIONAL_SERVICES ? (
+          <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <ProfessionalServicesSettings
+                settings={settings}
+                handleChange={handleChange}
+                onSubmit={handleSubmit}
+                saving={saving}
+              />
+            </form>
+            <ProfessionalServicesList
+              services={professionalServices}
+              onAdd={handleAddProfessionalService}
+              onEdit={handleEditProfessionalService}
+              onDelete={handleDeleteProfessionalService}
+            />
+          </div>
         ) : activeTab === TABS.TERMS_CONDITIONS ? (
           <form onSubmit={handleTermsSubmit} className="space-y-4">
             {renderContent()}
@@ -470,6 +614,101 @@ const BusinessSettings = () => {
                 disabled={deleteSubmitting}
               >
                 {deleteSubmitting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Professional Services Edit Modal */}
+      {editingProfessionalService && (
+        <div className="fixed inset-2 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Edit Professional Service
+            </h3>
+            <form
+              onSubmit={handleEditProfessionalFormSubmit}
+              className="space-y-4"
+            >
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">
+                  Service Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editProfessionalForm.name}
+                  onChange={handleEditProfessionalFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Price</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={editProfessionalForm.price}
+                  onChange={handleEditProfessionalFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 w-full sm:w-auto"
+                  onClick={handleEditProfessionalModalClose}
+                  disabled={editProfessionalSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#387DB2] text-white rounded hover:bg-[#2d6a99] w-full sm:w-auto"
+                  disabled={editProfessionalSubmitting}
+                >
+                  {editProfessionalSubmitting ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Professional Services Delete Modal */}
+      {deletingProfessionalService && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Delete Professional Service
+            </h3>
+            <p className="mb-6">
+              Are you sure you want to delete{" "}
+              <span className="font-bold">
+                {deletingProfessionalService.name}
+              </span>
+              ? This action cannot be undone.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 w-full sm:w-auto"
+                onClick={handleDeleteProfessionalModalClose}
+                disabled={deleteProfessionalSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 w-full sm:w-auto"
+                onClick={handleDeleteProfessionalConfirm}
+                disabled={deleteProfessionalSubmitting}
+              >
+                {deleteProfessionalSubmitting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
