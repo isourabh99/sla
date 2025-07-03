@@ -26,13 +26,14 @@ export async function getPendingEngineers(token, page = 1) {
   }
 }
 
-export async function getApprovedEngineers(token, page = 1) {
+export async function getApprovedEngineers(token, page = 1, quotationId) {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/engineer/getEngineers`,
       {
         params: {
           page: page,
+          quotation_id: quotationId,
         },
         headers: {
           "Content-Type": "application/json",

@@ -84,7 +84,7 @@ const QuotationDetails = () => {
 
   const fetchEngineerList = async () => {
     try {
-      const response = await getApprovedEngineers(token);
+      const response = await getApprovedEngineers(token, 1, quotationId);
       if (response && response.status && response.data) {
         setEngineerList(response.data.data);
       }
@@ -96,7 +96,8 @@ const QuotationDetails = () => {
 
   const fetchPartnerList = async () => {
     try {
-      const response = await getPartners(token);
+      const response = await getPartners(token, 1, quotationId);
+      console.log(response.data);
       if (response && response.status && response.data) {
         setPartnerList(response.data.data);
       }
@@ -707,12 +708,12 @@ const QuotationDetails = () => {
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Quantity
                         </th>
-                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Unit Price
-                            </th>
-                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Total Price
-                            </th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Unit Price
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Total Price
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -727,7 +728,9 @@ const QuotationDetails = () => {
                           <td className="px-4 py-2 text-sm text-gray-900">
                             ${parseFloat(part.unit_price).toLocaleString()}
                           </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{part.total_price}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {part.total_price}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

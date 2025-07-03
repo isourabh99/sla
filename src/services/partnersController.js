@@ -26,11 +26,12 @@ export async function getPendingPartners(token, page = 1) {
   }
 }
 
-export async function getPartners(token, page = 1) {
+export async function getPartners(token, page = 1,quotationId) {
   try {
     const response = await axios.get(`${BASE_URL}/admin/partner/getPartners`, {
       params: {
         page: page,
+        quotation_id: quotationId,
       },
       headers: {
         "Content-Type": "application/json",
