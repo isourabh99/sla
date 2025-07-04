@@ -38,6 +38,8 @@ const QuotationDetails = () => {
   const [engineerList, setEngineerList] = useState([]);
   const [partnerList, setPartnerList] = useState([]);
   const [offers, setOffers] = useState([]);
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [serviceAddress, setServiceAddress] = useState("");
   const { quotationId } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
@@ -51,6 +53,55 @@ const QuotationDetails = () => {
       fetchOffers();
     }
   }, [quotationId, token]);
+
+  // Fetch address when quotation is loaded and has lat/lng
+  useEffect(() => {
+    const fetchAddress = async (lat, lon) => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+        const data = await response.json();
+        if (data && data.display_name) {
+          setCustomerAddress(data.display_name);
+        } else {
+          setCustomerAddress("");
+        }
+      } catch (err) {
+        setCustomerAddress("");
+      }
+    };
+    if (
+      quotation &&
+      quotation.customer &&
+      quotation.customer.latitude &&
+      quotation.customer.longitude
+    ) {
+      fetchAddress(quotation.customer.latitude, quotation.customer.longitude);
+    }
+  }, [quotation]);
+
+  // Fetch service address when quotation is loaded and has lat/lng
+  useEffect(() => {
+    const fetchServiceAddress = async (lat, lon) => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+        const data = await response.json();
+        if (data && data.display_name) {
+          setServiceAddress(data.display_name);
+        } else {
+          setServiceAddress("");
+        }
+      } catch (err) {
+        setServiceAddress("");
+      }
+    };
+    if (quotation && quotation.latitude && quotation.longitude) {
+      fetchServiceAddress(quotation.latitude, quotation.longitude);
+    }
+  }, [quotation]);
 
   const fetchQuotationDetails = async () => {
     try {
@@ -321,11 +372,12 @@ const QuotationDetails = () => {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Address:</span>
                   <span className="font-medium text-gray-900 text-right">
-                    {quotation.customer?.address}
-                    <br />
-                    {quotation.customer?.city}, {quotation.customer?.state}
-                    <br />
-                    {quotation.customer?.country}
+                    {customerAddress
+                      ? customerAddress
+                      : quotation.customer?.latitude &&
+                        quotation.customer?.longitude
+                      ? `${quotation.customer.latitude}, ${quotation.customer.longitude}`
+                      : "N/A"}
                   </span>
                 </div>
               </div>
@@ -357,9 +409,25 @@ const QuotationDetails = () => {
                   </span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Category:</span>
+                  <span className="font-medium text-gray-900 capitalize">
+                    {quotation.service_category}
+                  </span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Description:</span>
                   <span className="font-medium text-gray-900 text-right">
                     {quotation.description}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Address:</span>
+                  <span className="font-medium text-gray-900 text-right">
+                    {serviceAddress
+                      ? serviceAddress
+                      : quotation.latitude && quotation.longitude
+                      ? `${quotation.latitude}, ${quotation.longitude}`
+                      : "N/A"}
                   </span>
                 </div>
               </div>
