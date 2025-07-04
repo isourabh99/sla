@@ -72,8 +72,8 @@ const ModelList = () => {
       key: "price",
       label: "Price",
       render: (row) => (
-        <div className="text-sm text-gray-900">
-          ₹{parseInt(row.price).toLocaleString()}
+        <div className="text-sm font-bold text-emerald-600">
+         ${" "}{parseInt(row.price).toLocaleString()}
         </div>
       ),
     },
