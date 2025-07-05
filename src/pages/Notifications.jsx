@@ -67,20 +67,12 @@ const Notifications = ({ isOpen, onClose }) => {
       setNotifications(notifications);
       setError(null);
 
-      // Show Sonner toast for new unread notifications
+      // Track new notifications without showing toast
       const newToShow = notifications.filter(
         (n) =>
           !n.is_read &&
           !shownNotificationIdsRef.current.includes(n.notification_id || n.id)
       );
-      newToShow.forEach((n) => {
-        toast(
-          n.description ||
-            n.message ||
-            n.title ||
-            "You have a new notification!"
-        );
-      });
       if (newToShow.length > 0) {
         shownNotificationIdsRef.current = [
           ...shownNotificationIdsRef.current,

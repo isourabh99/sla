@@ -63,7 +63,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
     fetchNotifications();
 
     // Refresh notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 10000);
+    const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
   }, [token, isAdmin]);
 
@@ -89,7 +89,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
       : null;
 
     if (latestUnread && lastPlayedNotificationId.current !== latestUnread.id) {
-      toast("You have a new notification!");
+      // Only play sound, no toast notification
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
         audioRef.current.play();
