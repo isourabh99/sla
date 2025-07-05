@@ -4,11 +4,12 @@ import {
   getPendingEngineers,
   getApprovedEngineers,
   updateEngineerStatus,
+  importEngineersExcel,
 } from "../services/engineersController";
 import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
-import { FiEye } from "react-icons/fi";
+import { FiEye, FiUpload } from "react-icons/fi";
 import { toast } from "sonner";
 
 const EngineersList = () => {
@@ -22,6 +23,8 @@ const EngineersList = () => {
     perPage: 10,
     total: 0,
   });
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = React.useRef(null);
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -190,6 +193,13 @@ const EngineersList = () => {
     fetchEngineers(1);
   }, [token, activeTab]);
 
+  // Debug useEffect
+  useEffect(() => {
+    console.log("EngineersList component mounted");
+    console.log("File input ref:", fileInputRef.current);
+    console.log("Token available:", !!token);
+  }, []);
+
   const handleStatusUpdate = async (engineerId, status) => {
     try {
       await updateEngineerStatus(token, engineerId, status);
@@ -197,6 +207,93 @@ const EngineersList = () => {
       fetchEngineers(pagination.currentPage); // Refresh current page
     } catch (err) {
       toast.error(err.message || "Failed to update engineer status");
+    }
+  };
+
+  const handleImportEngineers = async (event) => {
+    const file = event.target.files[0];
+    console.log("File selected:", file);
+
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+      "application/vnd.ms-excel", // .xls
+      "text/csv", // .csv
+    ];
+
+    console.log("File type:", file.type);
+    console.log("File size:", file.size);
+    console.log("File name:", file.name);
+    console.log("Allowed types:", allowedTypes);
+
+    // Check both MIME type and file extension
+    const fileExtension = file.name.toLowerCase().split(".").pop();
+    const isValidMimeType = allowedTypes.includes(file.type);
+    const isValidExtension = ["xlsx", "xls", "csv"].includes(fileExtension);
+
+    console.log("File extension:", fileExtension);
+    console.log("Is valid MIME type:", isValidMimeType);
+    console.log("Is valid extension:", isValidExtension);
+
+    if (!isValidMimeType && !isValidExtension) {
+      console.log("Invalid file type");
+      toast.error(
+        "Please select a valid Excel (.xlsx, .xls) or CSV (.csv) file"
+      );
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      console.log("File too large");
+      toast.error("File size should be less than 5MB");
+      return;
+    }
+
+    try {
+      setImporting(true);
+      console.log("Creating FormData...");
+      const formData = new FormData();
+      formData.append("excel_file", file);
+
+      console.log("FormData created, calling API...");
+      console.log("Token available:", !!token);
+
+      const result = await importEngineersExcel(token, formData);
+      console.log("API response:", result);
+
+      toast.success("Engineers imported successfully");
+      fetchEngineers(1); // Refresh the list
+    } catch (err) {
+      console.error("Import error:", err);
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
+      toast.error(err.message || "Failed to import engineers");
+    } finally {
+      setImporting(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleImportButtonClick = () => {
+    console.log("Import button clicked");
+    console.log("File input ref:", fileInputRef.current);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    } else {
+      console.error("File input ref is null");
     }
   };
 
@@ -324,15 +421,52 @@ const EngineersList = () => {
         </button>
       </div>
 
+      {/* Import Section */}
+      {activeTab === "approved" && (
+        <div className="flex justify-between items-center py-4 px-6 bg-gray-50 border-b border-gray-200">
+          <div>
+            <h3 className="text-lg font-medium text-gray-900">
+              Approved Engineers
+            </h3>
+            <p className="text-sm text-gray-500">
+              Manage and import engineer data
+            </p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleImportEngineers}
+              className="hidden"
+              disabled={importing}
+            />
+            <button
+              onClick={handleImportButtonClick}
+              disabled={importing}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              {importing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Importing...
+                </>
+              ) : (
+                <>
+                  <FiUpload className="w-4 h-4 mr-2" />
+                  Import Engineers
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <Loader size="large" fullScreen />
       ) : (
         <div>
           <DataTable
-            title="Engineers Management"
-            subtitle={`${
-              activeTab === "pending" ? "Pending" : "Approved"
-            } Engineers List`}
             columns={columns}
             data={engineers}
             loading={loading}

@@ -18,6 +18,7 @@ const PartnerDetails = () => {
   const [partner, setPartner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [realLocation, setRealLocation] = useState("");
   const { partnerId } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +28,30 @@ const PartnerDetails = () => {
       fetchPartnerDetails();
     }
   }, [partnerId, token]);
+
+  // Fetch real location when partner is loaded and has coordinates
+  useEffect(() => {
+    const fetchRealLocation = async (lat, lon) => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+        const data = await response.json();
+        if (data && data.display_name) {
+          setRealLocation(data.display_name);
+        } else {
+          setRealLocation("");
+        }
+      } catch (err) {
+        console.error("Error fetching real location:", err);
+        setRealLocation("");
+      }
+    };
+
+    if (partner && partner.latitude && partner.longitude) {
+      fetchRealLocation(partner.latitude, partner.longitude);
+    }
+  }, [partner]);
 
   const fetchPartnerDetails = async () => {
     try {
@@ -174,12 +199,25 @@ const PartnerDetails = () => {
                   <p className="text-gray-600">{partner?.address || "N/A"}</p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Coordinates</span>
+                  <span className="text-sm text-gray-500">Location</span>
                   <p className="text-gray-600">
-                    {partner?.latitude && partner?.longitude
-                      ? `${partner.latitude}, ${partner.longitude}`
-                      : "N/A"}
+                    {realLocation ||
+                      (partner?.latitude && partner?.longitude
+                        ? "Loading location..."
+                        : "No location coordinates available")}
                   </p>
+                  {partner?.latitude && partner?.longitude && (
+                    <button
+                      onClick={() => {
+                        const url = `https://www.google.com/maps?q=${partner.latitude},${partner.longitude}`;
+                        window.open(url, "_blank");
+                      }}
+                      className="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    >
+                      <FiMapPin className="w-3 h-3 mr-1" />
+                      See on Google Maps
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -123,3 +123,45 @@ export async function updateEngineer(token, formData) {
     );
   }
 }
+
+export async function importEngineersExcel(token, formData) {
+  try {
+    console.log("API: Starting import request");
+    console.log("API: URL:", `${BASE_URL}/importEngineersExcel`);
+    console.log("API: Token available:", !!token);
+    console.log("API: FormData entries:", Array.from(formData.entries()));
+
+    const response = await axios.post(
+      `${BASE_URL}/importEngineersExcel`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("API: Response received:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("API: Error occurred:", error);
+    console.error("API: Error response:", error.response);
+    console.error("API: Error status:", error.response?.status);
+    console.error("API: Error data:", error.response?.data);
+
+    if (error.response?.status === 422) {
+      // Handle validation errors
+      const validationErrors = error.response.data.errors;
+      if (validationErrors) {
+        const errorMessages = Object.entries(validationErrors)
+          .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+          .join("\n");
+        throw new Error(`Validation failed:\n${errorMessages}`);
+      }
+    }
+    throw new Error(
+      error.response?.data?.message || "Failed to import engineers from Excel"
+    );
+  }
+}
