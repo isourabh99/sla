@@ -9,7 +9,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
-import { FiEye, FiUpload } from "react-icons/fi";
+import { FiEye, FiUpload, FiDownload } from "react-icons/fi";
 import { toast } from "sonner";
 
 const EngineersList = () => {
@@ -297,6 +297,26 @@ const EngineersList = () => {
     }
   };
 
+  const handleDownloadSample = () => {
+    try {
+      // Create a link element
+      const link = document.createElement("a");
+      link.href = "/src/assets/sample.xlsx";
+      link.download = "sample.xlsx";
+      link.style.display = "none";
+
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success("Sample file downloaded successfully");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download sample file");
+    }
+  };
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.lastPage) {
       fetchEngineers(newPage);
@@ -432,7 +452,7 @@ const EngineersList = () => {
               Manage and import engineer data
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -442,19 +462,26 @@ const EngineersList = () => {
               disabled={importing}
             />
             <button
+              onClick={handleDownloadSample}
+              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+            >
+              <FiDownload className="w-3.5 h-3.5 mr-1.5" />
+              Sample
+            </button>
+            <button
               onClick={handleImportButtonClick}
               disabled={importing}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-transparent text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
             >
               {importing ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-1.5"></div>
                   Importing...
                 </>
               ) : (
                 <>
-                  <FiUpload className="w-4 h-4 mr-2" />
-                  Import Engineers
+                  <FiUpload className="w-3.5 h-3.5 mr-1.5" />
+                  Import
                 </>
               )}
             </button>
