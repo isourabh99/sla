@@ -20,7 +20,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
   const profileRef = useRef(null);
   const prevUnreadRef = useRef(unreadNotifications);
   const audioRef = useRef(null);
-  const lastPlayedNotificationId = useRef(null);
+  const playedNotificationIds = useRef(new Set());
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -81,20 +81,27 @@ const Header = ({ isSidebarOpen, toggleSidebar, toggleNotifications }) => {
   }, []);
 
   useEffect(() => {
-    // Find latest unread notification
-    const latestUnread = notifications
-      ? notifications
-          .filter((n) => !n.is_read)
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
-      : null;
+    // Find all unread notifications
+    const unreadNotifications = notifications
+      ? notifications.filter((n) => !n.is_read)
+      : [];
 
-    if (latestUnread && lastPlayedNotificationId.current !== latestUnread.id) {
-      // Only play sound, no toast notification
+    // Check for new unread notifications that we haven't played sound for yet
+    const newUnreadNotifications = unreadNotifications.filter(
+      (notification) => !playedNotificationIds.current.has(notification.id)
+    );
+
+    // Play sound for new unread notifications
+    if (newUnreadNotifications.length > 0) {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
         audioRef.current.play();
       }
-      lastPlayedNotificationId.current = latestUnread.id;
+
+      // Mark these notifications as played
+      newUnreadNotifications.forEach((notification) => {
+        playedNotificationIds.current.add(notification.id);
+      });
     }
   }, [notifications]);
 
