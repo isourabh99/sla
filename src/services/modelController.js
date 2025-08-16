@@ -41,7 +41,7 @@ export const getBrandsForModel = async (token) => {
 };
 
 // Get all models
-export const getModels = async (token, page = 1) => {
+export const getModels = async (token, page = 1, search = "") => {
   try {
     const response = await axios.get(`${BASE_URL}/admin/models/getModels`, {
       headers: {
@@ -49,6 +49,7 @@ export const getModels = async (token, page = 1) => {
       },
       params: {
         page: page,
+        search: search,
       },
     });
 
@@ -59,7 +60,7 @@ export const getModels = async (token, page = 1) => {
 };
 
 // Get pending models
-export const getPendingModels = async (token, page = 1) => {
+export const getPendingModels = async (token, page = 1, search = "") => {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/models/getModels/panding`,
@@ -69,6 +70,7 @@ export const getPendingModels = async (token, page = 1) => {
         },
         params: {
           page: page,
+          search: search,
         },
       }
     );

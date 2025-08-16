@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiEdit2, FiX, FiUploadCloud, FiDownload } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
 import {
@@ -17,6 +17,7 @@ import Loader from "../components/Loader";
 import { toast } from "sonner";
 
 const ModelList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [models, setModels] = useState([]);
   const [pendingModels, setPendingModels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,12 @@ const ModelList = () => {
   const [selectedModel, setSelectedModel] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isStatusUpdateModalOpen, setIsStatusUpdateModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
   const [editFormData, setEditFormData] = useState({
     name: "",
     price: "",
@@ -196,7 +203,7 @@ const ModelList = () => {
   const fetchModels = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await getModels(token, page);
+      const response = await getModels(token, page, debouncedSearchTerm);
       setModels(response.data.data);
       setPagination({
         currentPage: response.data.current_page,
@@ -216,7 +223,7 @@ const ModelList = () => {
   const fetchPendingModels = async (page = 1) => {
     try {
       setPendingLoading(true);
-      const response = await getPendingModels(token, page);
+      const response = await getPendingModels(token, page, debouncedSearchTerm);
       setPendingModels(response.data.data);
       setPendingPagination({
         currentPage: response.data.current_page,
@@ -248,6 +255,24 @@ const ModelList = () => {
     fetchBrands();
   }, [token]);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Handle debounced search changes
+  useEffect(() => {
+    if (debouncedSearchTerm !== searchParams.get("search")) {
+      // Reset to page 1 when search changes
+      fetchModels(1);
+      fetchPendingModels(1);
+    }
+  }, [debouncedSearchTerm]);
+
   //   const handleRowClick = (row) => {
   //     if (row && row.id) {
   //       navigate(`/models/${row.id}`);
@@ -271,6 +296,19 @@ const ModelList = () => {
     if (tab === "pending" && pendingModels.length === 0) {
       fetchPendingModels();
     }
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+
+    // Update URL parameters
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("search", value);
+    } else {
+      newSearchParams.delete("search");
+    }
+    setSearchParams(newSearchParams);
   };
 
   const handleEditClick = (model) => {
@@ -646,6 +684,18 @@ const ModelList = () => {
         </div>
       )}
 
+      {/* Header Section for Pending Models Tab */}
+      {activeTab === "pending" && (
+        <div className="flex justify-between items-center py-4 px-6 bg-gray-50 border-b border-gray-200">
+          <div>
+            <h3 className="text-lg font-medium text-gray-900">
+              Pending Models
+            </h3>
+            <p className="text-sm text-gray-500">Models awaiting approval</p>
+          </div>
+        </div>
+      )}
+
       {/* Main Content by Tab */}
       {activeTab === "approved" &&
         (loading ? (
@@ -654,11 +704,19 @@ const ModelList = () => {
           <div>
             <DataTable
               title="Model Management"
-              subtitle="Model List"
+              subtitle={
+                debouncedSearchTerm
+                  ? `Search results for "${debouncedSearchTerm}"`
+                  : "Model List"
+              }
               columns={getApprovedColumns()}
               data={models}
               loading={loading}
               error={error}
+              searchable={true}
+              searchPlaceholder="Search models..."
+              externalSearchTerm={searchTerm}
+              onSearchChange={handleSearchChange}
             />
             {!error && models.length > 0 && renderPagination()}
           </div>
@@ -670,11 +728,19 @@ const ModelList = () => {
           <div>
             <DataTable
               title="Pending Models"
-              subtitle="Pending Models List"
+              subtitle={
+                debouncedSearchTerm
+                  ? `Search results for "${debouncedSearchTerm}"`
+                  : "Pending Models List"
+              }
               columns={getPendingColumns()}
               data={pendingModels}
               loading={pendingLoading}
               error={pendingError}
+              searchable={true}
+              searchPlaceholder="Search pending models..."
+              externalSearchTerm={searchTerm}
+              onSearchChange={handleSearchChange}
             />
             {!pendingError &&
               pendingModels.length > 0 &&

@@ -14,8 +14,14 @@ const DataTable = ({
   className = "",
   searchable = true,
   searchPlaceholder = "Search...",
+  externalSearchTerm = "",
+  onSearchChange,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [internalSearchTerm, setInternalSearchTerm] = useState("");
+
+  // Use external search term if provided, otherwise use internal
+  const searchTerm =
+    externalSearchTerm !== undefined ? externalSearchTerm : internalSearchTerm;
 
   const searchInObj = (item, term) => {
     const lowercasedTerm = term.toLowerCase();
@@ -78,7 +84,14 @@ const DataTable = ({
               type="text"
               placeholder={searchPlaceholder}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (onSearchChange) {
+                  onSearchChange(value);
+                } else {
+                  setInternalSearchTerm(value);
+                }
+              }}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-full w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"
             />
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
