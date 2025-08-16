@@ -2,16 +2,17 @@ import axios from "axios";
 import config from "../config";
 const BASE_URL = config.api.baseUrl;
 // Create a new brand
-export const createBrand = async (brandData, token) => {
+export const createSLA = async (brandData, token) => {
   try {
     const formData = new FormData();
     formData.append("name", brandData.name);
+    formData.append("percentage", brandData.percentage); // Ensure percentage is always sent
     if (brandData.image) {
       formData.append("image", brandData.image);
     }
 
     const response = await axios.post(
-      `${BASE_URL}/admin/brands/createBrand`,
+      `${BASE_URL}/admin/sla-type/createSlatype`,
       formData,
       {
         headers: {
@@ -28,9 +29,9 @@ export const createBrand = async (brandData, token) => {
 };
 
 // Get all brands with pagination
-export const getBrands = async (token, page = 1, perPage = 10, search = "") => {
+export const getSLA = async (token, page = 1, perPage = 10, search = "") => {
   try {
-    const response = await axios.get(`${BASE_URL}/admin/brands/getBrands`, {
+    const response = await axios.get(`${BASE_URL}/admin/sla-type/getSlatypes`, {
       params: {
         page,
         per_page: perPage,
@@ -48,16 +49,19 @@ export const getBrands = async (token, page = 1, perPage = 10, search = "") => {
 };
 
 // Get brand by ID
-export const getBrandById = async (token, brandId) => {
+export const getSLAById = async (token, slatype_id) => {
   try {
-    const response = await axios.get(`${BASE_URL}/admin/brands/getBrandById`, {
-      params: {
-        brand_id: brandId,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${BASE_URL}/admin/sla-type/getSlatypeById`,
+      {
+        params: {
+          slatype_id: slatype_id,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     return response.data;
   } catch (error) {
@@ -66,7 +70,7 @@ export const getBrandById = async (token, brandId) => {
 };
 
 // Update brand
-export const updateBrand = async (brandData, token) => {
+export const updateSLA= async (brandData, token) => {
   try {
     const formData = new FormData();
 
@@ -80,7 +84,7 @@ export const updateBrand = async (brandData, token) => {
     });
 
     const response = await axios.post(
-      `${BASE_URL}/admin/brands/updateBrand`,
+      `${BASE_URL}/admin/sla-type/updateSlatype`,
       formData,
       {
         headers: {
@@ -97,13 +101,13 @@ export const updateBrand = async (brandData, token) => {
 };
 
 // Delete brand
-export const deleteBrand = async (token, brandId) => {
+export const deleteSLA = async (token, slatype_id) => {
   try {
     const response = await axios.delete(
-      `${BASE_URL}/admin/brands/deleteBrand`,
+      `${BASE_URL}/admin/sla-type/deleteSlatype`,
       {
         params: {
-          brand_id: brandId,
+          slatype_id: slatype_id,
         },
         headers: {
           Authorization: `Bearer ${token}`,

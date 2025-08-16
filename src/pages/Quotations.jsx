@@ -56,15 +56,21 @@ const Quotations = () => {
       label: "Service Details",
       render: (row) => (
         <div>
-          <div className="font-medium text-gray-900">
-            {row.service_category}
-          </div>
-          <div className="text-sm text-gray-500 capitalize">
-            Type: {row.quotation_type}
-          </div>
-          <div className="text-sm text-gray-500 capitalize">
-            Support: {row.support_type}
-          </div>
+          {row.service_category && (
+            <div className="font-medium text-gray-900">
+              {row.service_category}
+            </div>
+          )}
+          {row.quotation_type && (
+            <div className="text-sm text-gray-500 capitalize">
+              Type: {row.quotation_type}
+            </div>
+          )}
+          {row.support_type && (
+            <div className="text-sm text-gray-500 capitalize">
+              Support: {row.support_type}
+            </div>
+          )}
         </div>
       ),
     },

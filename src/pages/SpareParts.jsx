@@ -4,7 +4,6 @@ import {
   getCustomerSpareParts,
   updateCustomerSparePart,
 } from "../services/sparepartsController";
-import { getBrandsForModel } from "../services/modelController";
 import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
@@ -24,10 +23,8 @@ const SpareParts = () => {
   const [editFormData, setEditFormData] = useState({
     description: "",
     price: "",
-    brand_id: "",
   });
   const [updating, setUpdating] = useState(false);
-  const [brands, setBrands] = useState([]);
   const { token, user } = useAuth();
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -39,7 +36,6 @@ const SpareParts = () => {
 
   useEffect(() => {
     fetchSpareParts(1);
-    fetchBrands();
   }, [token, activeTab]);
 
   const fetchSpareParts = async (page = 1) => {
@@ -106,31 +102,17 @@ const SpareParts = () => {
     }
   };
 
-  const fetchBrands = async () => {
-    try {
-      const response = await getBrandsForModel(token);
-      setBrands(response.data || []);
-    } catch (err) {
-      console.error("Failed to fetch brands:", err);
-    }
-  };
-
   const handleEdit = (sparePart) => {
     setEditingSparePart(sparePart);
     setEditFormData({
       description: sparePart.description || "",
       price: sparePart.price || "",
-      brand_id: sparePart.brand?.id || "",
     });
     setEditModalOpen(true);
   };
 
   const handleUpdate = async () => {
-    if (
-      !editFormData.description ||
-      !editFormData.price ||
-      !editFormData.brand_id
-    ) {
+    if (!editFormData.description || !editFormData.price) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -141,7 +123,7 @@ const SpareParts = () => {
       toast.success("Spare part updated successfully");
       setEditModalOpen(false);
       setEditingSparePart(null);
-      setEditFormData({ description: "", price: "", brand_id: "" });
+      setEditFormData({ description: "", price: "" });
       // Refresh the data
       fetchSpareParts();
     } catch (err) {
@@ -154,7 +136,7 @@ const SpareParts = () => {
   const handleCloseEdit = () => {
     setEditModalOpen(false);
     setEditingSparePart(null);
-    setEditFormData({ description: "", price: "", brand_id: "" });
+    setEditFormData({ description: "", price: "" });
     setError(null);
   };
 
@@ -252,21 +234,6 @@ const SpareParts = () => {
             label: "Price",
             render: (row) => (
               <span className="text-emerald-500 font-bold">$ {row.price}</span>
-            ),
-          },
-          {
-            key: "brand",
-            label: "Brand",
-            render: (row) => (
-              <div className="flex items-center space-x-2">
-                <img
-                  src={row.brand?.image}
-                  alt={row.brand?.name}
-                  className="h-8 w-8 object-cover rounded-full border"
-                  onError={(e) => (e.target.src = defaultSpare)}
-                />
-                <span>{row.brand?.name}</span>
-              </div>
             ),
           },
         ]
@@ -407,29 +374,6 @@ const SpareParts = () => {
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Brand
-                </label>
-                <select
-                  value={editFormData.brand_id}
-                  onChange={(e) =>
-                    setEditFormData({
-                      ...editFormData,
-                      brand_id: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select a brand</option>
-                  {brands.map((brand) => (
-                    <option key={brand.id} value={brand.id}>
-                      {brand.name}
-                    </option>
-                  ))}
-                </select>
               </div>
             </div>
 

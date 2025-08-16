@@ -27,6 +27,13 @@ import {
   deleteProfessionalService,
 } from "../services/professionalServiceController";
 import { getTerms, storeTerms } from "../services/termsController";
+import CountrySettings from "./business-settings/CountrySettings";
+import {
+  getCountries,
+  addCountry,
+  updateCountry,
+  deleteCountry,
+} from "../services/countryController";
 
 const TABS = {
   BUSINESS_INFO: "Business Info",
@@ -34,6 +41,7 @@ const TABS = {
   PROFESSIONAL_SERVICES: "Professional Services",
   SOFTWARE_CLOUD: "Software & Cloud Services",
   TERMS_CONDITIONS: "Terms & Conditions",
+  COUNTRIES: "Country Settings", // Add new tab
 };
 
 const BusinessSettings = () => {
@@ -80,11 +88,23 @@ const BusinessSettings = () => {
   const [deleteProfessionalSubmitting, setDeleteProfessionalSubmitting] =
     useState(false);
 
+  // Countries state
+  const [countries, setCountries] = useState([]);
+  const [editingCountry, setEditingCountry] = useState(null);
+  const [editCountryForm, setEditCountryForm] = useState({
+    name: "",
+    percentage: "",
+  });
+  const [editCountrySubmitting, setEditCountrySubmitting] = useState(false);
+  const [deletingCountry, setDeletingCountry] = useState(null);
+  const [deleteCountrySubmitting, setDeleteCountrySubmitting] = useState(false);
+
   useEffect(() => {
     fetchSettings();
     fetchServices();
     fetchProfessionalServices();
     fetchTerms();
+    fetchCountries(); // Fetch countries
   }, []);
 
   const fetchSettings = async () => {
@@ -130,6 +150,17 @@ const BusinessSettings = () => {
       }
     } catch (error) {
       toast.error("Failed to fetch terms and conditions");
+    }
+  };
+
+  const fetchCountries = async () => {
+    try {
+      const response = await getCountries(token);
+      if (response.status) {
+        setCountries(response.data || []);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch countries");
     }
   };
 
@@ -377,6 +408,87 @@ const BusinessSettings = () => {
     setDeletingProfessionalService(null);
   };
 
+  // Countries handlers
+  const handleAddCountry = async (countryData) => {
+    try {
+      const response = await addCountry(countryData, token);
+      if (response.status) {
+        toast.success("Country added successfully");
+        fetchCountries();
+        return true;
+      } else {
+        toast.error(response.message || "Failed to add country");
+        return false;
+      }
+    } catch (error) {
+      toast.error("Failed to add country");
+      return false;
+    }
+  };
+  const handleEditCountry = (country) => {
+    setEditingCountry(country);
+    setEditCountryForm({
+      name: country.name,
+      percentage: country.percentage.toString(),
+    });
+  };
+  const handleEditCountryFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditCountryForm((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleEditCountryFormSubmit = async (e) => {
+    e.preventDefault();
+    setEditCountrySubmitting(true);
+    try {
+      const response = await updateCountry(
+        editingCountry.id,
+        {
+          name: editCountryForm.name,
+          percentage: parseFloat(editCountryForm.percentage),
+        },
+        token
+      );
+      if (response.status) {
+        toast.success("Country updated successfully");
+        setEditingCountry(null);
+        fetchCountries();
+      } else {
+        toast.error(response.message || "Failed to update country");
+      }
+    } catch (error) {
+      toast.error("Failed to update country");
+    } finally {
+      setEditCountrySubmitting(false);
+    }
+  };
+  const handleEditCountryModalClose = () => {
+    setEditingCountry(null);
+  };
+  const handleDeleteCountry = (country) => {
+    setDeletingCountry(country);
+  };
+  const handleDeleteCountryConfirm = async () => {
+    if (!deletingCountry) return;
+    setDeleteCountrySubmitting(true);
+    try {
+      const response = await deleteCountry(deletingCountry.id, token);
+      if (response.status) {
+        toast.success("Country deleted successfully");
+        setDeletingCountry(null);
+        fetchCountries();
+      } else {
+        toast.error(response.message || "Failed to delete country");
+      }
+    } catch (error) {
+      toast.error("Failed to delete country");
+    } finally {
+      setDeleteCountrySubmitting(false);
+    }
+  };
+  const handleDeleteCountryModalClose = () => {
+    setDeletingCountry(null);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case TABS.BUSINESS_INFO:
@@ -414,6 +526,15 @@ const BusinessSettings = () => {
           <TermsConditionsSettings
             termsContent={termsContent}
             handleChange={handleTermsChange}
+          />
+        );
+      case TABS.COUNTRIES:
+        return (
+          <CountrySettings
+            countries={countries}
+            onAdd={handleAddCountry}
+            onEdit={handleEditCountry}
+            onDelete={handleDeleteCountry}
           />
         );
       default:
@@ -485,10 +606,43 @@ const BusinessSettings = () => {
               <ProfessionalServicesSettings
                 settings={settings}
                 handleChange={handleChange}
-                onSubmit={handleSubmit}
-                saving={saving}
               />
             </form>
+
+            {/* Buttons in same row */}
+            <div className="flex justify-between items-center mb-4">
+              <button
+                type="button"
+                className="px-4 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200"
+                onClick={() => {
+                  // This will be handled by ProfessionalServicesList component
+                  const addButton = document.querySelector(
+                    "[data-add-professional-service]"
+                  );
+                  if (addButton) addButton.click();
+                }}
+              >
+                Add Professional Service
+              </button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                onClick={handleSubmit}
+                disabled={saving}
+                className="px-6 py-2 bg-emerald-700 text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                    <span>Saving...</span>
+                  </div>
+                ) : (
+                  "Save Changes"
+                )}
+              </motion.button>
+            </div>
             <ProfessionalServicesList
               services={professionalServices}
               onAdd={handleAddProfessionalService}
@@ -518,6 +672,8 @@ const BusinessSettings = () => {
               </motion.button>
             </div>
           </form>
+        ) : activeTab === TABS.COUNTRIES ? (
+          renderContent()
         ) : (
           renderContent()
         )}
@@ -709,6 +865,92 @@ const BusinessSettings = () => {
                 disabled={deleteProfessionalSubmitting}
               >
                 {deleteProfessionalSubmitting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Country Edit Modal */}
+      {editingCountry && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Edit Country</h3>
+            <form onSubmit={handleEditCountryFormSubmit} className="space-y-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editCountryForm.name}
+                  onChange={handleEditCountryFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">
+                  Percentage
+                </label>
+                <input
+                  type="number"
+                  name="percentage"
+                  value={editCountryForm.percentage}
+                  onChange={handleEditCountryFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 w-full sm:w-auto"
+                  onClick={handleEditCountryModalClose}
+                  disabled={editCountrySubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#387DB2] text-white rounded hover:bg-[#2d6a99] w-full sm:w-auto"
+                  disabled={editCountrySubmitting}
+                >
+                  {editCountrySubmitting ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Country Delete Modal */}
+      {deletingCountry && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Delete Country</h3>
+            <p className="mb-6">
+              Are you sure you want to delete{" "}
+              <span className="font-bold">{deletingCountry.name}</span>? This
+              action cannot be undone.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 w-full sm:w-auto"
+                onClick={handleDeleteCountryModalClose}
+                disabled={deleteCountrySubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 w-full sm:w-auto"
+                onClick={handleDeleteCountryConfirm}
+                disabled={deleteCountrySubmitting}
+              >
+                {deleteCountrySubmitting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

@@ -154,3 +154,24 @@ export const updateOfferStatus = async (token, quotationOfferId, status) => {
     throw error.response?.data || error.message;
   }
 };
+
+// Approve quotation status
+export const approveQuotationStatus = async (token, quotationId) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/admin/quotation/approve-status`,
+      {
+        quotation_id: quotationId,
+        approved_status: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};

@@ -1,106 +1,320 @@
 import React, { useState, useEffect } from "react";
-import { getBrands, deleteBrand } from "../services/brandController";
+import { getSLA, deleteSLA, updateSLA } from "../services/brandController";
 import { useNavigate, Link } from "react-router-dom";
-import { FaSearch, FaTrash, FaPlus } from "react-icons/fa";
+import { FaPlus, FaTrash } from "react-icons/fa";
 import { FiEdit2 } from "react-icons/fi";
 import Loader from "../components/Loader";
+import DataTable from "../components/DataTable";
 import { toast } from "sonner";
 
 const BrandList = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    lastPage: 1,
+    total: 0,
+    perPage: 10,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [perPage] = useState(10);
   const navigate = useNavigate();
-
-  const token = localStorage.getItem("token"); // Assuming token is stored in localStorage
+  const token = localStorage.getItem("token");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSLA, setSelectedSLA] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    percentage: "",
+    slatype_id: "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
 
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 1500); // 500ms delay
-
+    }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const fetchBrands = async (page, search) => {
+  const fetchBrands = async (page = 1, search = "") => {
     try {
       setLoading(true);
-      const response = await getBrands(token, page, perPage, search);
+      const response = await getSLA(token, page, pagination.perPage, search);
       setBrands(response.data.data);
-      setTotalPages(response.data.last_page);
-      setCurrentPage(response.data.current_page);
+      setPagination({
+        currentPage: response.data.current_page,
+        lastPage: response.data.last_page,
+        total: response.data.total,
+        perPage: response.data.per_page,
+      });
       setError(null);
     } catch (err) {
       setError("Failed to fetch brands. Please try again.");
-      console.error("Error fetching brands:", err);
+      setBrands([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBrands(currentPage, debouncedSearchQuery);
-  }, [currentPage, debouncedSearchQuery]);
+    fetchBrands(pagination.currentPage, debouncedSearchQuery);
+    // eslint-disable-next-line
+  }, [pagination.currentPage, debouncedSearchQuery]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setCurrentPage(1); // Reset to first page on new search
-    fetchBrands(1, searchQuery);
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleDeleteBrand = async (brandId) => {
+  const handleDeleteSLA = async (slatype_id) => {
     if (window.confirm("Are you sure you want to delete this brand?")) {
       try {
-        await deleteBrand(token, brandId);
+        setLoading(true);
+        await deleteSLA(token, slatype_id);
         toast.success("Brand deleted successfully");
-        // Refresh the brands list
-        fetchBrands(currentPage, debouncedSearchQuery);
+        fetchBrands(pagination.currentPage, debouncedSearchQuery);
       } catch (err) {
         toast.error(err.message || "Failed to delete brand");
+      } finally {
+        setLoading(false);
       }
     }
   };
 
+  const handleEditClick = (sla) => {
+    setSelectedSLA(sla);
+    setEditFormData({
+      name: sla.name ? String(sla.name) : "",
+      percentage:
+        sla.percentage !== undefined && sla.percentage !== null
+          ? String(sla.percentage)
+          : "",
+      slatype_id: sla.id,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditLoading(true);
+    try {
+      // Prepare data as array for updateSLA
+      const formArr = [
+        { key: "slatype_id", value: editFormData.slatype_id },
+        { key: "name", value: editFormData.name },
+        { key: "percentage", value: editFormData.percentage },
+      ];
+      await updateSLA(formArr, token);
+      toast.success("SLA Type updated successfully");
+      setIsEditModalOpen(false);
+      fetchBrands(pagination.currentPage, debouncedSearchQuery);
+    } catch (err) {
+      toast.error(err.message || "Failed to update SLA Type");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.lastPage) {
+      setPagination((prev) => ({ ...prev, currentPage: newPage }));
+    }
+  };
+
+  // DataTable columns
+  const columns = [
+    {
+      key: "sno",
+      label: "S.No.",
+      render: (row, index) => (
+        <div className="text-sm font-medium text-gray-500">
+          {(pagination.currentPage - 1) * pagination.perPage + index + 1}
+        </div>
+      ),
+    },
+    {
+      key: "id",
+      label: "ID",
+      render: (row) => (
+        <div className="text-sm font-mono text-gray-500">#{row.id}</div>
+      ),
+    },
+    {
+      key: "name",
+      label: "Name",
+      render: (row) => (
+        <div className="font-medium text-gray-900">{row.name}</div>
+      ),
+    },
+    {
+      key: "percentage",
+      label: "Percentage",
+      render: (row) => (
+        <div className="text-sm font-bold text-emerald-600">
+          {row.percentage}%
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            row.status === 1
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {row.status === 1 ? "Active" : "Inactive"}
+        </span>
+      ),
+    },
+    {
+      key: "created_at",
+      label: "Created At",
+      render: (row) => (
+        <div className="text-sm text-gray-500">
+          {new Date(row.created_at).toLocaleDateString()}
+        </div>
+      ),
+    },
+    {
+      key: "updated_at",
+      label: "Updated At",
+      render: (row) => (
+        <div className="text-sm text-gray-500">
+          {new Date(row.updated_at).toLocaleDateString()}
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (row) => (
+        <div className="flex items-center space-x-1.5">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditClick(row);
+            }}
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+            title="Edit SLA Type"
+          >
+            <FiEdit2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteSLA(row.id);
+            }}
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
+            title="Delete SLA Type"
+          >
+            <FaTrash className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  // Pagination UI
   const renderPagination = () => {
     const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const maxVisiblePages = 5;
+    let startPage = Math.max(
+      1,
+      pagination.currentPage - Math.floor(maxVisiblePages / 2)
+    );
+    let endPage = Math.min(
+      pagination.lastPage,
+      startPage + maxVisiblePages - 1
+    );
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 mx-1 rounded ${
-            currentPage === i
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
+          className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            pagination.currentPage === i
+              ? "bg-blue-600 text-white shadow-sm"
+              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400"
           }`}
         >
           {i}
         </button>
       );
     }
-    return pages;
+    return (
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 mt-4">
+        <div className="text-sm text-gray-700">
+          Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
+          {Math.min(
+            pagination.currentPage * pagination.perPage,
+            pagination.total
+          )}{" "}
+          of {pagination.total} entries
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={pagination.currentPage === 1}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
+          >
+            Previous
+          </button>
+          {startPage > 1 && (
+            <>
+              <button
+                onClick={() => handlePageChange(1)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors"
+              >
+                1
+              </button>
+              {startPage > 2 && <span className="px-2 text-gray-500">...</span>}
+            </>
+          )}
+          {pages}
+          {endPage < pagination.lastPage && (
+            <>
+              {endPage < pagination.lastPage - 1 && (
+                <span className="px-2 text-gray-500">...</span>
+              )}
+              <button
+                onClick={() => handlePageChange(pagination.lastPage)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors"
+              >
+                {pagination.lastPage}
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={pagination.currentPage === pagination.lastPage}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
   };
-
-  if (loading) {
-    return <Loader size="large" fullScreen />;
-  }
 
   return (
     <div className="p-4 bg-gray-50 ">
       <div className="flex items-center gap-2 mb-6">
         <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
         <h1 className="text-xl font-semibold text-gray-500">
-          Brand Management <span className="text-base">• Brand List</span>
+          SLA Type Management{" "}
+          <span className="text-base">• SLA Types List</span>
         </h1>
       </div>
       <div className="flex justify-between items-center mb-6">
@@ -109,115 +323,93 @@ const BrandList = () => {
           className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-lg font-medium  transition-all duration-300 text-sm"
         >
           <FaPlus className="" />
-          Add New Brand
+          Add New SLA Type
         </Link>
-
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="w-1/3">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search brands..."
-              className="w-full  py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <FaSearch className="absolute left-3 top-3 text-gray-400" />
-          </div>
-        </form>
-      </div>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+        <div className="w-1/3">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search sla types..."
+            className="w-full py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-      )}
-
-      {/* Brands Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {brands.map((brand) => (
-          <div
-            key={brand.id}
-            className="group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden"
-          >
-            <div className="relative h-40 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
-              <img
-                src={brand.image}
-                alt={brand.name}
-                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src =
-                    "https://via.placeholder.com/400x300?text=Brand+Image";
-                }}
-              />
-            </div>
-
-            <div className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
-                    {brand.name}
-                  </h3>
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 font-medium">
-                      ID: {brand.id}
-                    </p>
-                    <p className="text-xs text-gray-500 font-medium">
-                      Created At{" "}
-                      {new Date(brand.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1.5">
-                  <button
-                    onClick={() => navigate(`/brands/${brand.id}`)}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
-                    title="Edit Brand"
-                  >
-                    <FiEdit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteBrand(brand.id)}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
-                    title="Delete Brand"
-                  >
-                    <FaTrash className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-8">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 rounded ${
-                currentPage === 1
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              Previous
-            </button>
-            {renderPagination()}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded ${
-                currentPage === totalPages
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              Next
-            </button>
+      {loading ? (
+        <Loader size="large" fullScreen />
+      ) : (
+        <>
+          <DataTable
+            title="SLA Type Management"
+            subtitle="SLA Types List"
+            columns={columns}
+            data={brands}
+            loading={false}
+            error={error}
+            searchable={false}
+          />
+          {pagination.lastPage > 1 && renderPagination()}
+        </>
+      )}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 w-full max-w-md shadow-xl transform transition-all">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Edit SLA Type
+              </h2>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FiEdit2 className="w-4 h-4" />
+              </button>
+            </div>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editFormData.name || ""}
+                  onChange={handleEditInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Percentage
+                </label>
+                <input
+                  type="number"
+                  name="percentage"
+                  value={editFormData.percentage || ""}
+                  onChange={handleEditInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  disabled={editLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 shadow-sm hover:shadow-md"
+                  disabled={editLoading}
+                >
+                  {editLoading ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

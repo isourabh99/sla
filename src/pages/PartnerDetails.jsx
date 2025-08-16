@@ -187,7 +187,14 @@ const PartnerDetails = () => {
                 </div>
               </div>
             </div>
-
+            {partner?.description && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Description
+                </h2>
+                <p className="text-gray-600">{partner?.description}</p>
+              </div>
+            )}
             {/* Location Information */}
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">
@@ -224,7 +231,7 @@ const PartnerDetails = () => {
           </div>
 
           {/* Associated Brands */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Associated Brands
             </h2>
@@ -262,7 +269,7 @@ const PartnerDetails = () => {
             ) : (
               <p className="text-gray-500">No brands associated</p>
             )}
-          </div>
+          </div> */}
 
           {/* Expertise */}
           <div className="mt-8">

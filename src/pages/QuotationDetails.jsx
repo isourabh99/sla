@@ -7,12 +7,14 @@ import {
   assignPartner,
   getOffersByQuotation,
   updateOfferStatus,
+  approveQuotationStatus,
 } from "../services/quotationController";
 import { getStaffs } from "../services/staffController";
 import { getApprovedEngineers } from "../services/engineersController";
 import { getPartners } from "../services/partnersController";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
+import DataTable from "../components/DataTable";
 import {
   FiArrowLeft,
   FiUser,
@@ -22,6 +24,7 @@ import {
   FiUsers,
   FiUserPlus,
   FiPrinter,
+  FiCheck,
 } from "react-icons/fi";
 import { toast } from "sonner";
 import slalogo from "../assets/sla-logo.png";
@@ -40,6 +43,7 @@ const QuotationDetails = () => {
   const [offers, setOffers] = useState([]);
   const [customerAddress, setCustomerAddress] = useState("");
   const [serviceAddress, setServiceAddress] = useState("");
+  const [approving, setApproving] = useState(false);
   const { quotationId } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
@@ -108,7 +112,7 @@ const QuotationDetails = () => {
       setLoading(true);
       const response = await getQuotationDetails(token, quotationId);
       if (response && response.status && response.data) {
-        // console.log(response.data);
+        console.log(response.data);
         setQuotation(response.data);
       }
       setError(null);
@@ -148,7 +152,7 @@ const QuotationDetails = () => {
   const fetchPartnerList = async () => {
     try {
       const response = await getPartners(token, 1, quotationId);
-      console.log(response.data);
+      // console.log(response.data);
       if (response && response.status && response.data) {
         setPartnerList(response.data.data);
       }
@@ -221,6 +225,19 @@ const QuotationDetails = () => {
       toast.error(error.message || "Failed to update offer status");
     } finally {
       setUpdatingOfferStatus(false);
+    }
+  };
+
+  const handleApproveQuotation = async () => {
+    try {
+      setApproving(true);
+      await approveQuotationStatus(token, quotationId);
+      toast.success("Quotation approved successfully");
+      fetchQuotationDetails();
+    } catch (error) {
+      toast.error(error.message || "Failed to approve quotation");
+    } finally {
+      setApproving(false);
     }
   };
 
@@ -306,37 +323,21 @@ const QuotationDetails = () => {
         <div className="p-4 border-b">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <img src={slalogo} alt="SLA Logo" className="h-10 w-auto" />
+              <img src={slalogo} alt="SLA Logo" className="h-8 w-auto" />
               <div className="flex flex-col">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-bold text-gray-900">
+                  <h1 className="text-lg font-bold text-gray-900">
                     Quotation #{quotation.id}
                   </h1>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-sm font-medium capitalize ${
-                      quotation.status === "approved"
-                        ? "bg-green-100 text-green-800"
-                        : quotation.status === "pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-emerald-100 text-gray-800"
-                    }`}
-                  >
-                    {quotation.status}
-                  </span>
+                  {quotation.serial_number && (
+                    <span className="text-sm text-gray-500">
+                      (SN: {quotation.serial_number})
+                    </span>
+                  )}
                 </div>
-                <span className="text-sm text-gray-500 mt-1">
+                <span className="text-xs text-gray-500 mt-0.5">
                   {new Date(quotation.created_at).toLocaleDateString()}
                 </span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-emerald-500">Estimated Amount</div>
-              <div className="text-sm font-bold text-gray-900">
-                ${parseFloat(quotation.estimated_amount).toLocaleString()}
-              </div>
-              <div className="text-sm text-blue-500">Final Amount</div>
-              <div className="text-sm font-bold text-gray-900">
-                ${parseFloat(quotation.final_amount).toLocaleString()}
               </div>
             </div>
           </div>
@@ -351,6 +352,20 @@ const QuotationDetails = () => {
                 Customer Information
               </h2>
               <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Status:</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-sm font-medium capitalize ${
+                      quotation.status === "approved"
+                        ? "bg-green-100 text-green-800"
+                        : quotation.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-emerald-100 text-gray-800"
+                    }`}
+                  >
+                    {quotation.status}
+                  </span>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Name:</span>
                   <span className="font-medium text-gray-900 capitalize">
@@ -390,30 +405,51 @@ const QuotationDetails = () => {
                 Service Information
               </h2>
               <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Category:</span>
-                  <span className="font-medium text-gray-900 capitalize">
-                    {quotation.service_category}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Type:</span>
-                  <span className="font-medium text-gray-900 capitalize">
-                    {quotation.quotation_type}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Support:</span>
-                  <span className="font-medium text-gray-900 capitalize">
-                    {quotation.support_type}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Category:</span>
-                  <span className="font-medium text-gray-900 capitalize">
-                    {quotation.service_category}
-                  </span>
-                </div>
+                {quotation.quotation_type && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">
+                      Quotation Type:
+                    </span>
+                    <span className="font-medium text-gray-900 capitalize">
+                      {quotation.quotation_type}
+                    </span>
+                  </div>
+                )}
+                {quotation.service_category && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">
+                      Service Category:
+                    </span>
+                    <span className="font-medium text-gray-900 capitalize">
+                      {quotation.service_category}
+                    </span>
+                  </div>
+                )}
+                {quotation.service_type && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Service Type:</span>
+                    <span className="font-medium text-gray-900 capitalize">
+                      {quotation.service_type}
+                    </span>
+                  </div>
+                )}
+                {quotation.support_type && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Support Type:</span>
+                    <span className="font-medium text-gray-900 capitalize">
+                      {quotation.support_type}
+                    </span>
+                  </div>
+                )}
+                {quotation.slatype && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">SLA Type:</span>
+                    <span className="font-medium text-gray-900 capitalize">
+                      {quotation.slatype.name}
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Description:</span>
                   <span className="font-medium text-gray-900 text-right">
@@ -433,38 +469,142 @@ const QuotationDetails = () => {
               </div>
             </div>
 
-            {/* Device Information */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <FiPackage className="mr-2" />
-                Device Information
-              </h2>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Brand:</span>
-                  <span className="font-medium text-gray-900">
-                    {quotation.brand?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Model:</span>
-                  <span className="font-medium text-gray-900">
-                    {quotation.model?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Serial Number:</span>
-                  <span className="font-medium text-gray-900">
-                    {quotation.serial_number}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Quantity:</span>
-                  <span className="font-medium text-gray-900">
-                    {quotation.quantity}
-                  </span>
+            {/* Models Table */}
+            <div className="bg-gray-50 rounded-lg">
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Models
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => navigate("/models")}
+                    className="flex items-center px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    Go to Models
+                  </button>
                 </div>
               </div>
+              <DataTable
+                title=""
+                columns={[
+                  {
+                    key: "name",
+                    label: "Model Name",
+                    render: (model) => model.name,
+                  },
+                  {
+                    key: "quantity",
+                    label: "Quantity",
+                    render: (model) => parseInt(model.quantity) || 0,
+                  },
+                  {
+                    key: "price",
+                    label: "Unit Price",
+                    render: (model) =>
+                      `$${parseFloat(model.price || 0).toLocaleString()}`,
+                  },
+                  {
+                    key: "total",
+                    label: "Total Price",
+                    render: (model) => {
+                      const unitPrice = parseFloat(model.price) || 0;
+                      const quantity = parseInt(model.quantity) || 0;
+                      const totalPrice = unitPrice * quantity;
+                      return (
+                        <span className="font-medium text-emerald-700">
+                          ${totalPrice.toLocaleString()}
+                        </span>
+                      );
+                    },
+                  },
+                  {
+                    key: "status",
+                    label: "Status",
+                    render: (model) => {
+                      const status = model.status;
+                      return (
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            status === 1
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {status === 1 ? "Approved" : "Pending"}
+                        </span>
+                      );
+                    },
+                  },
+                ]}
+                data={
+                  Array.isArray(quotation.models)
+                    ? quotation.models
+                    : (() => {
+                        try {
+                          return JSON.parse(quotation.models);
+                        } catch {
+                          return [];
+                        }
+                      })()
+                }
+                loading={false}
+                searchable={false}
+                className=""
+              />
+            </div>
+
+            {/* Spare Parts Table */}
+            <div className="bg-gray-50 rounded-lg">
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-1 bg-[#387DB2] rounded-full"></div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Spare Parts
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => navigate("/spare-parts")}
+                    className="flex items-center px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    Go to Spare Parts
+                  </button>
+                </div>
+              </div>
+              <DataTable
+                title=""
+                columns={[
+                  {
+                    key: "spare_part",
+                    label: "Part Name",
+                    render: (part) => part.name || "N/A",
+                  },
+                  {
+                    key: "quantity",
+                    label: "Quantity",
+                    render: (part) => part.quantity,
+                  },
+                  {
+                    key: "unit_price",
+                    label: "Unit Price",
+                    render: (part) =>
+                      `$${parseFloat(part.unit_price || 0).toLocaleString()}`,
+                  },
+                  {
+                    key: "total_price",
+                    label: "Total Price",
+                    render: (part) =>
+                      `$${parseFloat(part.total_price || 0).toLocaleString()}`,
+                  },
+                ]}
+                data={quotation.spare_parts || []}
+                loading={false}
+                searchable={false}
+                className=""
+              />
             </div>
 
             {/* Team Assignment */}
@@ -758,54 +898,275 @@ const QuotationDetails = () => {
                 </div>
               )}
             </div>
-
-            {/* Spare Parts Information */}
-            {quotation.spare_parts && quotation.spare_parts.length > 0 && (
-              <div className="bg-gray-50 rounded-lg p-4 col-span-1 md:col-span-2">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <FiPackage className="mr-2" />
-                  Spare Parts
+            {/* Quotation Info Section at the end, styled like other sections */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="px-4 py-3 border-b border-gray-200">
+                <h2 className="text-lg font-bold text-gray-900 flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-2 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                    ></path>
+                  </svg>
+                  Pricing Breakdown
                 </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Part Name
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Quantity
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Unit Price
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Total Price
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {quotation.spare_parts.map((part, index) => (
-                        <tr key={index}>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {part.spare_part.name || "N/A"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {part.quantity}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            ${parseFloat(part.unit_price).toLocaleString()}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {part.total_price}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              </div>
+
+              <div className="p-4">
+                {quotation.service_category && (
+                  <div className="flex justify-between items-center py-2 px-3 bg-orange-50 rounded-md mb-2">
+                    <div className="flex items-center">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-900 capitalize">
+                          Service Category
+                        </span>
+                        <p className="text-xs text-gray-500 font-semibold">
+                          {quotation.service_category}{" "}
+                          {quotation.service_Category_type_price}$ ×{" "}
+                          {quotation.estimated_Working_days || 1} days
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-orange-700">
+                      +$
+                      {(
+                        parseFloat(quotation.service_Category_type_price || 0) *
+                        parseFloat(quotation.estimated_Working_days || 1)
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                {/* Base Amount */}
+                <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-md border border-gray-200">
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-2"></div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">
+                        Base Amount
+                      </span>
+                      <p className="text-xs text-gray-600">
+                        <span className="text-xs text-gray-500 font-semibold">
+                          Inclusive of service category charge and equipment
+                          cost
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">
+                    ${parseFloat(quotation.estimated_amount).toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Additional Services - Compact */}
+                {(quotation.service_category ||
+                  quotation.service_type ||
+                  quotation.support_type ||
+                  quotation.slatype) && (
+                  <div className="mt-3 space-y-2">
+                    {quotation.service_type && (
+                      <div className="flex justify-between items-center py-2 px-3 bg-blue-50 rounded-md">
+                        <div className="flex items-center">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                          <p className="text-sm font-medium text-gray-900 capitalize">
+                            Service Type
+                          </p>
+                          <p className="text-xs text-gray-500 font-semibold ml-2">
+                            {`(${quotation.service_type})`}
+                          </p>
+                        </div>
+                        <span className="text-sm font-semibold text-blue-700">
+                          +$
+                          {parseFloat(
+                            quotation.service_type_price || 0
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+
+                    {quotation.support_type && (
+                      <div className="flex justify-between items-center py-2 px-3 bg-green-50 rounded-md">
+                        <div className="flex items-center">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                          <p className="text-sm font-medium text-gray-900 capitalize">
+                            Support Type
+                          </p>
+                          <p className="text-xs text-gray-500 font-semibold ml-2">
+                            {`(${quotation.support_type})`}
+                          </p>
+                        </div>
+                        <span className="text-sm font-semibold text-green-700">
+                          +$
+                          {parseFloat(
+                            quotation.support_type_price || 0
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+
+                    {quotation.slatype && (
+                      <div className="flex justify-between items-center py-2 px-3 bg-purple-50 rounded-md">
+                        <div className="flex items-center">
+                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
+                          <span className="text-sm font-medium text-gray-900">
+                            SLA Percentage
+                          </span>
+                          <p className="text-xs text-gray-500 font-semibold ml-2">
+                            {`(${quotation.slatype.percentage}%)`}
+                          </p>
+                        </div>
+                        <span className="text-sm font-semibold text-purple-700">
+                          $
+                          {(
+                            quotation.estimated_amount *
+                            (quotation.slatype.percentage / 100)
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+
+                    {quotation.country && quotation.country_percentage && (
+                      <div className="flex justify-between items-center py-2 px-3 bg-red-50 rounded-md">
+                        <div className="flex items-center">
+                          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
+                          <div>
+                            <span className="text-sm font-medium text-gray-900 capitalize">
+                              Country tax
+                            </span>
+                            <p className="text-xs text-gray-500 font-semibold">
+                              {quotation.country} (
+                              {quotation.country_percentage}%)
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-sm font-semibold text-red-700">
+                          {quotation.quotation_type === "maintenance" && (
+                            <>
+                              $
+                              {(
+                                (parseFloat(quotation.estimated_amount || 0) +
+                                  parseFloat(
+                                    quotation.service_type_price || 0
+                                  ) +
+                                  parseFloat(
+                                    quotation.support_type_price || 0
+                                  ) +
+                                  parseFloat(quotation.estimated_amount || 0) *
+                                    (parseFloat(
+                                      quotation.slatype?.percentage || 0
+                                    ) /
+                                      100)) *
+                                (parseFloat(quotation.country_percentage || 0) /
+                                  100)
+                              ).toLocaleString()}
+                            </>
+                          )}
+                          {
+                            quotation.quotation_type === "software_cloud" && (
+                              <>
+                                $
+                                {parseFloat(quotation.estimated_amount || 0) *
+                                  (parseFloat(quotation.country_percentage || 0) /
+                                    100)}
+                              </> 
+                            ) 
+                          }
+                          {
+                            quotation.quotation_type === "professional_service" && (
+                              <>
+                                $
+                                {parseFloat(quotation.estimated_amount || 0) *
+                                  (parseFloat(quotation.country_percentage || 0) /
+                                    100)}
+                              </>
+                            )
+                          }
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Total Calculation - Compact */}
+                <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-base font-bold text-gray-900">
+                      Total Amount
+                    </span>
+                    <span className="text-xl font-bold text-blue-600">
+                      ${parseFloat(quotation.final_amount).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Status Section - Compact */}
+                <div className="mt-3 flex justify-between items-center p-3 bg-gray-50 rounded-md border border-gray-200">
+                  <span className="text-sm font-medium text-gray-700">
+                    Status
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {quotation.approved_status === 1 ? (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5"></div>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          ✓ Approved
+                        </span>
+                      </div>
+                    ) : quotation.approved_status === 0 ? (
+                      <div className="flex items-center gap-1.5">
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1.5"></div>
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            ⏳ Pending
+                          </span>
+                        </div>
+                        <button
+                          onClick={handleApproveQuotation}
+                          disabled={approving}
+                          className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                          title="Approve Quotation"
+                        >
+                          {approving ? (
+                            <span>...</span>
+                          ) : (
+                            <>
+                              <svg
+                                className="w-3 h-3 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M5 13l4 4L19 7"
+                                ></path>
+                              </svg>
+                              Approve
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-gray-500 rounded-full mr-1.5"></div>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          ? Unknown
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

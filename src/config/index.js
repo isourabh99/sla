@@ -1,6 +1,6 @@
 const config = {
   api: {
-    baseUrl: "https://slabackend.bechobookscan.com/api",
+    baseUrl: "https://slabackend.carnate.in/api",
   },
 };
 

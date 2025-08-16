@@ -164,7 +164,14 @@ const SupplierDetails = () => {
                 </div>
               </div>
             </div>
-
+            {supplier?.description && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Description
+                </h2>
+                <p className="text-gray-600">{supplier?.description}</p>
+              </div>
+            )}
             {/* Location Information */}
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">
@@ -201,7 +208,7 @@ const SupplierDetails = () => {
           </div>
 
           {/* Brands Section */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Associated Brands
             </h2>
@@ -241,7 +248,7 @@ const SupplierDetails = () => {
                 </p>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Spare Parts Section */}
           <div className="mt-8">

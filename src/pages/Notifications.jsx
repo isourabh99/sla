@@ -4,6 +4,7 @@ import {
   getNotifications,
   markNotificationAsRead,
 } from "../services/notificationsController";
+import { getSparePartById } from "../services/sparepartsController";
 import Loader from "../components/Loader";
 import ErrorDisplay from "../components/ErrorDisplay";
 import ConfirmationModal from "../components/ConfirmationModal";
@@ -19,9 +20,12 @@ import {
   FiSearch,
   FiRefreshCw,
   FiX,
+  FiEye,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { span } from "framer-motion/client";
 
 // Background colors array for different notification styles
 const bgColors = [
@@ -37,6 +41,8 @@ const bgColors = [
   "border-l-cyan-500 bg-cyan-50 hover:bg-cyan-100",
 ];
 
+const getNotificationId = (n) => String(n.notification_id || n.id);
+
 const Notifications = ({ isOpen, onClose }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +55,11 @@ const Notifications = ({ isOpen, onClose }) => {
   const { token } = useAuth();
   const shownNotificationIdsRef = useRef([]);
   const [markingReadId, setMarkingReadId] = useState(null);
+  const navigate = useNavigate();
+  const [typeFilter, setTypeFilter] = useState("all"); // all, quotation_created, spare_part_added
+  const [showSparePartModal, setShowSparePartModal] = useState(false);
+  const [sparePartData, setSparePartData] = useState(null);
+  const [loadingSparePart, setLoadingSparePart] = useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -58,7 +69,7 @@ const Notifications = ({ isOpen, onClose }) => {
       let notifications = [];
       if (Array.isArray(data.data.notifications)) {
         notifications = data.data.notifications;
-        // console.log(notifications);
+        console.log(notifications);
       } else if (data && Array.isArray(data.data)) {
         notifications = data.data;
       } else if (data && data.data && Array.isArray(data.data.notification)) {
@@ -92,7 +103,7 @@ const Notifications = ({ isOpen, onClose }) => {
   }, [isOpen, token]);
 
   const handleMarkAsRead = async (notificationId) => {
-    setMarkingReadId(notificationId);
+    setMarkingReadId(String(notificationId));
     const markingToastId = toast.loading("Marking as read...");
     try {
       await markNotificationAsRead(notificationId, token);
@@ -110,6 +121,20 @@ const Notifications = ({ isOpen, onClose }) => {
     setRefreshing(true);
     await fetchNotifications();
     setRefreshing(false);
+  };
+
+  const handleViewSparePart = async (sparePartId) => {
+    try {
+      setLoadingSparePart(true);
+      const data = await getSparePartById(token, sparePartId);
+      setSparePartData(data);
+      setShowSparePartModal(true);
+    } catch (err) {
+      toast.error("Failed to fetch spare part details");
+      console.error("Failed to fetch spare part details:", err);
+    } finally {
+      setLoadingSparePart(false);
+    }
   };
 
   const getNotificationIcon = (type) => {
@@ -144,6 +169,10 @@ const Notifications = ({ isOpen, onClose }) => {
       if (filter === "unread") return !notification.is_read;
       if (filter === "read") return notification.is_read;
       return true;
+    })
+    .filter((notification) => {
+      if (typeFilter === "all") return true;
+      return notification.type === typeFilter;
     })
     .filter(
       (notification) =>
@@ -228,14 +257,16 @@ const Notifications = ({ isOpen, onClose }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <FiFilter className="text-gray-400 w-4 h-4" />
+
                   <select
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    style={{ minWidth: 160 }}
                   >
-                    <option value="all">All notifications</option>
-                    <option value="unread">Unread only</option>
-                    <option value="read">Read only</option>
+                    <option value="all">All types</option>
+                    <option value="quotation_created">Quotation Created</option>
+                    <option value="spare_part_added">Spare Part Added</option>
                   </select>
                 </div>
               </div>
@@ -268,118 +299,164 @@ const Notifications = ({ isOpen, onClose }) => {
                 </div>
               ) : (
                 <div key="notifications-list" className="p-4 space-y-3">
-                  {filteredNotifications.map((notification, index) => (
-                    <div
-                      key={
-                        notification.notification_id ||
-                        notification.id ||
-                        `notification-${index}`
-                      }
-                      className={`rounded-lg p-4 transition-all duration-200 hover:shadow-md ${
-                        !notification.is_read ? "" : ""
-                      } ${getNotificationColor(notification.type, index)}`}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 mt-1">
-                          {getNotificationIcon(notification.type)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="text-sm font-semibold text-gray-900 truncate">
-                              {notification.title}
-                            </h3>
-                            {!notification.is_read && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                New
-                              </span>
+                  {filteredNotifications.map((notification, index) => {
+                    // Parse description for quotation_id, spare_part_id and from_user
+                    let descObj = {};
+                    try {
+                      descObj =
+                        typeof notification.description === "string"
+                          ? JSON.parse(notification.description)
+                          : notification.description || {};
+                    } catch (e) {
+                      descObj = {};
+                    }
+                    const fromUser = notification.from_user || {};
+                    const quotationId = descObj.quotation_id;
+                    const sparePartId = descObj.spare_part_id;
+                    return (
+                      <div
+                        key={
+                          notification.notification_id ||
+                          notification.id ||
+                          `notification-${index}`
+                        }
+                        className={`rounded-lg p-3 transition-all duration-200 hover:shadow-md ${
+                          !notification.is_read ? "ring-2 ring-blue-200" : ""
+                        } ${getNotificationColor(notification.type, index)}`}
+                      >
+                        <div className="flex items-start space-x-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center space-x-2 flex-1 min-w-0">
+                                <div className="flex-shrink-0 mt-0.5">
+                                  {getNotificationIcon(notification.type)}
+                                </div>
+                                <h3 className="text-sm font-semibold text-gray-900 truncate">
+                                  {(() => {
+                                    let desc = notification.description;
+                                    if (typeof desc === "string") {
+                                      try {
+                                        const parsed = JSON.parse(desc);
+                                        if (parsed && parsed.message)
+                                          return parsed.message;
+                                      } catch (e) {
+                                        // Not JSON, fallback
+                                      }
+                                    } else if (desc && desc.message) {
+                                      return desc.message;
+                                    }
+                                    return desc || "Notification";
+                                  })()}
+                                </h3>
+                              </div>
+                              {/* Profile Picture on top right */}
+                              {fromUser && (
+                                <div className="flex-shrink-0 ml-2 relative">
+                                  {fromUser.profile_picture ? (
+                                    <div className="relative">
+                                      <img
+                                        src={`https://slabackend.carnate.in/public/${fromUser.profile_picture}`}
+                                        alt="Profile"
+                                        className="w-6 h-6 rounded-full object-cover border border-gray-500"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="relative">
+                                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs font-bold">
+                                        {fromUser.name?.[0] || "?"}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* User Info with Quote Icon */}
+                            {fromUser && (
+                              <div className="flex items-center space-x-2 mb-2 ">
+                                {/* <div className="min-w-0 flex-1">
+                                  <div className="font-medium text-gray-800 text-xs truncate">
+                                    {fromUser.name} {fromUser.last_name}
+                                  </div>
+                                  <div className="text-gray-500 text-xs truncate">
+                                    {fromUser.email}
+                                  </div>
+                                </div> */}
+                                {/* Action Buttons */}
+                                <div className="flex items-center space-x-2">
+                                  {/* Quote Icon and ID */}
+                                  {quotationId && (
+                                    <span
+                                      className="flex items-center space-x-1 text-xs text-blue-600 font-medium bg-blue-100 px-2 py-1 rounded cursor-pointer hover:bg-blue-200 transition-colors duration-150"
+                                      onClick={() =>
+                                        navigate(`/quotations/${quotationId}`)
+                                      }
+                                      title="View Quote"
+                                    >
+                                      View Quote {quotationId}
+                                    </span>
+                                  )}
+                                  {/* Spare Part Icon and ID */}
+                                  {sparePartId &&
+                                    notification.type ===
+                                      "spare_part_added" && (
+                                      <span
+                                        className="flex items-center space-x-1 text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded cursor-pointer hover:bg-green-200 transition-colors duration-150"
+                                        onClick={() =>
+                                          navigate(`/spare-parts`)
+                                        }
+                                        title="View Spare Part"
+                                      >
+                                        View Spare Part {sparePartId}
+                                      </span>
+                                    )}
+                                  {/* Mark as Read Button */}
+                                  {!notification.is_read && (
+                                    <button
+                                      onClick={() =>
+                                        handleMarkAsRead(
+                                          getNotificationId(notification)
+                                        )
+                                      }
+                                      className={`px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-green-700 hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-lg transition-all duration-200 flex items-center space-x-1.5 ${
+                                        markingReadId ===
+                                        getNotificationId(notification)
+                                          ? "opacity-60 cursor-not-allowed"
+                                          : "hover:shadow-sm"
+                                      }`}
+                                      title="Mark as read"
+                                      disabled={
+                                        markingReadId ===
+                                        getNotificationId(notification)
+                                      }
+                                    >
+                                      {markingReadId ===
+                                      getNotificationId(notification) ? (
+                                        <span className="text-xs text-gray-500">
+                                          Marking as read...
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <FiCheck className="w-3.5 h-3.5" />
+                                          <span>Mark as read</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             )}
                           </div>
-                          <p className="text-gray-700 mb-2 text-sm leading-relaxed">
-                            {notification.description ||
-                              notification.message ||
-                              (notification.spare_part_name &&
-                                `Spare part "${notification.spare_part_name}" has been added.`) ||
-                              notification.title}
-                          </p>
-                          <div className="flex items-center justify-between text-xs text-gray-500">
-                            <div className="flex items-center space-x-1">
-                              <FiClock className="w-3 h-3" />
-                              <span>
-                                {notification.created_at
-                                  ? new Date(
-                                      notification.created_at
-                                    ).toLocaleDateString("en-US", {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })
-                                  : ""}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              {notification.spare_part_id && (
-                                <span className="text-blue-600 font-medium">
-                                  ID: {notification.spare_part_id}
-                                </span>
-                              )}
-                              {!notification.is_read && (
-                                <button
-                                  onClick={() =>
-                                    handleMarkAsRead(
-                                      notification.notification_id ||
-                                        notification.id
-                                    )
-                                  }
-                                  className={`p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors duration-200 flex items-center justify-center ${
-                                    markingReadId ===
-                                    (notification.notification_id ||
-                                      notification.id)
-                                      ? "opacity-60 cursor-not-allowed"
-                                      : ""
-                                  }`}
-                                  title="Mark as read"
-                                  disabled={
-                                    markingReadId ===
-                                    (notification.notification_id ||
-                                      notification.id)
-                                  }
-                                >
-                                  {markingReadId ===
-                                  (notification.notification_id ||
-                                    notification.id) ? (
-                                    <svg
-                                      className="animate-spin h-3 w-3 text-green-600"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <circle
-                                        className="opacity-25"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="4"
-                                      ></circle>
-                                      <path
-                                        className="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                                      ></path>
-                                    </svg>
-                                  ) : (
-                                    <FiCheck className="w-3 h-3" />
-                                  )}
-                                </button>
-                              )}
-                            </div>
-                          </div>
                         </div>
+
+                        {notification.created_at && (
+                          <div className="text-xs text-gray-500 text-right">
+                            {new Date(notification.created_at).toLocaleString()}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -396,6 +473,66 @@ const Notifications = ({ isOpen, onClose }) => {
               </div>
             )}
           </motion.div>
+
+          {/* Spare Part Modal */}
+          <AnimatePresence>
+            {showSparePartModal && (
+              <React.Fragment>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowSparePartModal(false)}
+                  className="fixed inset-0 bg-black/50 z-60"
+                />
+
+                {/* Modal */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="fixed inset-0 z-70 flex items-center justify-center p-4"
+                >
+                  <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Spare Part Details
+                      </h3>
+                      <button
+                        onClick={() => setShowSparePartModal(false)}
+                        className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                      >
+                        <FiX className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6">
+                      {loadingSparePart ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader size="medium" />
+                        </div>
+                      ) : sparePartData ? (
+                        <div className="space-y-4">
+                          <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+                            {JSON.stringify(sparePartData, null, 2)}
+                          </pre>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-600">
+                            No spare part data available
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </React.Fragment>
+            )}
+          </AnimatePresence>
         </React.Fragment>
       )}
     </AnimatePresence>

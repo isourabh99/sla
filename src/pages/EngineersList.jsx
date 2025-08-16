@@ -97,6 +97,17 @@ const EngineersList = () => {
         </div>
       ),
     },
+    {
+      key: "description",
+      label: "Description",
+      render: (row) => (
+        <div>
+          <div className="text-sm text-gray-900 text-ellipsis overflow-hidden  max-w-[100px]">
+            {row.description || "N/A  "}
+          </div>
+        </div>
+      ),
+    },
 
     {
       key: "status",
@@ -443,7 +454,7 @@ const EngineersList = () => {
 
       {/* Import Section */}
       {activeTab === "approved" && (
-        <div className="flex justify-between items-center py-4 px-6 bg-gray-50 border-b border-gray-200">
+        <div className="flex justify-between items-center py-4 px-6 bg-gray-50 border-b border-gray-200 ">
           <div>
             <h3 className="text-lg font-medium text-gray-900">
               Approved Engineers

@@ -79,3 +79,26 @@ export async function updateCustomerSparePart(token, sparePartId, updateData) {
     );
   }
 }
+
+// Get spare part details by ID
+export async function getSparePartById(token, sparePartId) {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/admin/supplier/all/User/SpearPartDetails`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          spare_part_id: sparePartId,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch spare part details"
+    );
+  }
+}

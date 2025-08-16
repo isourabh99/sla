@@ -29,6 +29,8 @@ import QuotationDetails from "./pages/QuotationDetails";
 import SpareParts from "./pages/SpareParts";
 import ContactQueries from "./pages/ContactQueries";
 import Notifications from "./pages/Notifications";
+import CustomersList from "./pages/CustomersList";
+import CustomerDetails from "./pages/CustomerDetails";
 
 function App() {
   return (
@@ -113,7 +115,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/brands/:brandId"
           element={
             <ProtectedRoute requireAdmin>
@@ -122,7 +124,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="/models/create"
           element={
@@ -308,6 +310,30 @@ function App() {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <Notifications />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Customers List Route */}
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <CustomersList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Customer Details Route */}
+        <Route
+          path="/customers/:customerId"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <CustomerDetails />
               </Layout>
             </ProtectedRoute>
           }

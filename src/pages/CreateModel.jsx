@@ -26,28 +26,11 @@ const CreateModel = () => {
   const [modelData, setModelData] = useState({
     name: "",
     price: "",
-    brand_id: "",
   });
   const [loading, setLoading] = useState(false);
-  const [brands, setBrands] = useState([]);
-  const [loadingBrands, setLoadingBrands] = useState(false);
   const { token } = useAuth();
 
-  useEffect(() => {
-    fetchBrands();
-  }, []);
-
-  const fetchBrands = async () => {
-    setLoadingBrands(true);
-    try {
-      const response = await getBrandsForModel(token);
-      setBrands(response.data || []);
-    } catch (error) {
-      toast.error("Failed to fetch brands");
-    } finally {
-      setLoadingBrands(false);
-    }
-  };
+  // Removed useEffect and fetchBrands as brands are no longer needed
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,10 +50,7 @@ const CreateModel = () => {
       toast.error("Please enter a price");
       return;
     }
-    if (!modelData.brand_id) {
-      toast.error("Please select a brand");
-      return;
-    }
+    // Removed brand_id validation
 
     setLoading(true);
     try {
@@ -80,7 +60,6 @@ const CreateModel = () => {
       setModelData({
         name: "",
         price: "",
-        brand_id: "",
       });
     } catch (error) {
       toast.error(error.message || "Failed to create model");
@@ -152,30 +131,7 @@ const CreateModel = () => {
               />
             </div>
 
-            {/* Brand Selection */}
-            <div>
-              <label
-                htmlFor="brand_id"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Select Brand
-              </label>
-              <select
-                id="brand_id"
-                name="brand_id"
-                value={modelData.brand_id}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                disabled={loadingBrands}
-              >
-                <option value="">Select a brand</option>
-                {brands.map((brand) => (
-                  <option key={brand.id} value={brand.id}>
-                    {brand.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Removed Brand Selection Dropdown */}
 
             {/* Submit Button */}
             <button

@@ -29,6 +29,7 @@ const menuItems = [
   { icon: <FaCog />, label: "Spare Parts", path: "/spare-parts" },
   { icon: <FaUser />, label: "Partners", path: "/partners" },
   { icon: <FaGraduationCap />, label: "Engineers", path: "/engineers" },
+  { icon: <FaUsers />, label: "Customers", path: "/customers" },
   { icon: <FaFileInvoiceDollar />, label: "Quotations", path: "/quotations" },
   {
     icon: <FaQuestionCircle />,
@@ -49,8 +50,8 @@ const staffMenuItems = [
 ];
 
 const brandsMenuItems = [
-  { icon: <FaPlus />, label: "Create Brand", path: "/brands/create" },
-  { icon: <FaTags />, label: "Show Brands", path: "/brands" },
+  { icon: <FaPlus />, label: "Create SLA Type", path: "/brands/create" },
+  { icon: <FaTags />, label: "Show SLA Types", path: "/brands" },
   { icon: <FaDesktop />, label: "Create Model", path: "/models/create" },
   { icon: <FaList />, label: "Show Models", path: "/models" },
 ];
@@ -235,7 +236,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                           exit={{ opacity: 0 }}
                           className="font-medium"
                         >
-                          Brands Management
+                          SLA / Models
                         </motion.span>
                       )}
                     </AnimatePresence>

@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import DataTable from "../../components/DataTable";
 
-const ProfessionalServicesList = ({ services, onAdd, onEdit, onDelete }) => {
+const CountrySettings = ({ countries, onAdd, onEdit, onDelete }) => {
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    price: "",
-  });
+  const [form, setForm] = useState({ name: "", percentage: "" });
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -15,7 +12,7 @@ const ProfessionalServicesList = ({ services, onAdd, onEdit, onDelete }) => {
   };
 
   const handleOpen = () => {
-    setForm({ name: "", price: "" });
+    setForm({ name: "", percentage: "" });
     setShowModal(true);
   };
 
@@ -28,7 +25,7 @@ const ProfessionalServicesList = ({ services, onAdd, onEdit, onDelete }) => {
     setSubmitting(true);
     const success = await onAdd({
       name: form.name,
-      price: parseFloat(form.price) || 0,
+      percentage: parseFloat(form.percentage) || 0,
     });
     setSubmitting(false);
     if (success) {
@@ -38,26 +35,24 @@ const ProfessionalServicesList = ({ services, onAdd, onEdit, onDelete }) => {
 
   return (
     <div className="mb-8">
-      {/* Hidden button that can be triggered from parent */}
-      <button
-        ref={(el) => {
-          if (el) {
-            el.setAttribute("data-add-professional-service", "true");
-            el.addEventListener("click", handleOpen);
-          }
-        }}
-        style={{ display: "none" }}
-      />
-
+      <div className="mb-4">
+        <button
+          type="button"
+          className="px-4 py-2 bg-[#387DB2] text-white rounded-lg hover:bg-[#2d6a99] transition-colors duration-200"
+          onClick={handleOpen}
+        >
+          Add Country
+        </button>
+      </div>
       <div className="bg-white rounded-lg">
         <DataTable
-          title="Professional Services"
+          title="Countries"
           columns={[
-            { key: "name", label: "Service Name" },
+            { key: "name", label: "Country Name" },
             {
-              key: "price",
-              label: "Price",
-              render: (row) => `$${row.price}`,
+              key: "percentage",
+              label: "Percentage",
+              render: (row) => `${row.percentage}%`,
             },
             {
               key: "actions",
@@ -88,22 +83,19 @@ const ProfessionalServicesList = ({ services, onAdd, onEdit, onDelete }) => {
               ),
             },
           ]}
-          data={services}
+          data={countries}
           searchable={true}
         />
       </div>
-
-      {/* Modal for Add Service */}
+      {/* Modal for Add Country */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-30 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              Add Professional Service
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Add Country</h3>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">
-                  Service Name
+                  Country Name
                 </label>
                 <input
                   type="text"
@@ -111,20 +103,22 @@ const ProfessionalServicesList = ({ services, onAdd, onEdit, onDelete }) => {
                   value={form.name}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded"
-                  placeholder="Enter service name"
+                  placeholder="Enter country name"
                   required
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Price</label>
+                <label className="block text-sm font-medium mb-1">
+                  Percentage
+                </label>
                 <input
                   type="number"
-                  name="price"
-                  value={form.price}
+                  name="percentage"
+                  value={form.percentage}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded"
-                  placeholder="Enter price"
-                  min="0"
+                  placeholder="Enter percentage"
+                  // min="0"
                   step="0.01"
                   required
                 />
@@ -154,4 +148,4 @@ const ProfessionalServicesList = ({ services, onAdd, onEdit, onDelete }) => {
   );
 };
 
-export default ProfessionalServicesList;
+export default CountrySettings;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { HiOutlineEmojiSad } from "react-icons/hi";
 import { FiSearch } from "react-icons/fi";
+import Loader from "./Loader";
 
 const DataTable = ({
   title,
@@ -41,7 +42,7 @@ const DataTable = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <Loader size="medium" />
       </div>
     );
   }
@@ -91,7 +92,7 @@ const DataTable = ({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-tighter text-nowrap"
                 >
                   {column.label}
                 </th>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getEngineerDetails } from "../services/engineersController";
-import { getBrandById } from "../services/brandController";
+import { getSLAById } from "../services/brandController";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
 import {
@@ -195,6 +195,14 @@ const EngineerDetails = () => {
                 </div>
               </div>
             </div>
+            {engineer?.description && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Description
+                </h2>
+                <p className="text-gray-600">{engineer?.description}</p>
+              </div>
+            )}
 
             {/* Location Information */}
             <div className="space-y-4">
@@ -232,7 +240,7 @@ const EngineerDetails = () => {
           </div>
 
           {/* Associated Brands */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Associated Brands
             </h2>
@@ -272,7 +280,7 @@ const EngineerDetails = () => {
                 </p>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Expertise */}
           <div className="mt-8">

@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getPendingPartners,
-  getPartners,
-  updatePartnerStatus,
-} from "../services/partnersController";
-
+import { getCustomers } from "../services/customerController";
 import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
 import { FiEye } from "react-icons/fi";
 import { toast } from "sonner";
 
-const PartnersList = () => {
-  const [activeTab, setActiveTab] = useState("approved");
-  const [partners, setPartners] = useState([]);
+const CustomersList = () => {
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -79,7 +73,7 @@ const PartnersList = () => {
       render: (row) => (
         <div>
           <div className="text-sm text-gray-900">{row.email}</div>
-          <div className="text-sm text-gray-500">{row.phone}</div>
+          <div className="text-sm text-gray-500">{row.phone || "N/A"}</div>
         </div>
       ),
     },
@@ -88,20 +82,24 @@ const PartnersList = () => {
       label: "Location",
       render: (row) => (
         <div>
-          <div className="text-sm text-gray-900">{row.address || null}</div>
+          <div className="text-sm text-gray-900">{row.address || "N/A"}</div>
           <div className="text-sm text-gray-500">
-            {[row.city, row.state, row.country].filter(Boolean).join(", ")}
+            {[row.city, row.state, row.country].filter(Boolean).join(", ") ||
+              "N/A"}
           </div>
         </div>
       ),
     },
     {
-      key: "description",
-      label: "Description",
+      key: "created_at",
+      label: "Joined",
       render: (row) => (
         <div>
-          <div className="text-sm text-gray-900 text-ellipsis overflow-hidden  max-w-[100px]">
-            {row.description || "N/A  "}
+          <div className="text-sm text-gray-900">
+            {new Date(row.created_at).toLocaleDateString()}
+          </div>
+          <div className="text-sm text-gray-500">
+            {new Date(row.created_at).toLocaleTimeString()}
           </div>
         </div>
       ),
@@ -110,23 +108,10 @@ const PartnersList = () => {
       key: "status",
       label: "Status",
       render: (row) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${
-            row.status === "approved"
-              ? "bg-green-100 text-green-800"
-              : "bg-yellow-100 text-yellow-800"
-          }`}
-        >
-          {row.status || "Pending"}
-        </span>
-      ),
-    },
-    {
-      key: "created_at",
-      label: "Joined",
-      render: (row) => (
-        <div className="text-sm text-gray-500">
-          {new Date(row.created_at).toLocaleDateString()}
+        <div className="flex items-center">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Active
+          </span>
         </div>
       ),
     },
@@ -134,53 +119,29 @@ const PartnersList = () => {
       key: "actions",
       label: "Actions",
       render: (row) => (
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/partners/${row.id}`);
+              handleViewCustomer(row);
             }}
-            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+            className="inline-flex items-center justify-center p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-200"
+            title="View Details"
           >
-            <FiEye className="w-3.5 h-3.5" />
+            <FiEye className="w-4 h-4" />
           </button>
-          {activeTab === "pending" && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleStatusUpdate(row.id, "approved");
-              }}
-              className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200 text-sm"
-            >
-              Approve
-            </button>
-          )}
-          {activeTab === "approved" && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleStatusUpdate(row.id, "pending");
-              }}
-              className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-colors duration-200 text-sm"
-            >
-              Set to Pending
-            </button>
-          )}
         </div>
       ),
     },
   ];
 
-  const fetchPartners = async (page = 1) => {
+  const fetchCustomers = async (page = 1) => {
     try {
       setLoading(true);
-      const data =
-        activeTab === "pending"
-          ? await getPendingPartners(token, page)
-          : await getPartners(token, page);
+      const data = await getCustomers(token, page);
 
       if (data.status && data.data) {
-        setPartners(data.data.data);
+        setCustomers(data.data.data);
         setPagination({
           currentPage: data.data.current_page,
           lastPage: data.data.last_page,
@@ -190,36 +151,30 @@ const PartnersList = () => {
       }
       setError(null);
     } catch (err) {
-      setError(err.message || "Failed to fetch partners list");
-      setPartners([]);
+      setError(err.message || "Failed to fetch customers list");
+      setCustomers([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPartners(1);
-  }, [token, activeTab]);
+    fetchCustomers(1);
+  }, [token]);
 
-  const handleStatusUpdate = async (partnerId, status) => {
-    try {
-      await updatePartnerStatus(token, partnerId, status);
-      toast.success("Partner status updated successfully");
-      fetchPartners(pagination.currentPage); // Refresh current page
-    } catch (err) {
-      toast.error(err.message || "Failed to update partner status");
-    }
+  const handleViewCustomer = (customer) => {
+    navigate(`/customers/${customer.id}`);
   };
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.lastPage) {
-      fetchPartners(newPage);
+      fetchCustomers(newPage);
     }
   };
 
   const handleRowClick = (row) => {
     if (row && row.id) {
-      navigate(`/partners/${row.id}`);
+      navigate(`/customers/${row.id}`);
     }
   };
 
@@ -245,9 +200,9 @@ const PartnersList = () => {
           key={i}
           onClick={() => handlePageChange(i)}
           className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-            pagination.currentPage === i
-              ? "bg-blue-600 text-white shadow-sm"
-              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+            i === pagination.currentPage
+              ? "bg-blue-600 text-white"
+              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400"
           }`}
         >
           {i}
@@ -256,14 +211,22 @@ const PartnersList = () => {
     }
 
     return (
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
-        <div className="text-sm text-gray-700">
-          Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
-          {Math.min(
-            pagination.currentPage * pagination.perPage,
-            pagination.total
-          )}{" "}
-          of {pagination.total} entries
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+        <div className="flex items-center text-sm text-gray-700">
+          <span>
+            Showing{" "}
+            <span className="font-medium">
+              {(pagination.currentPage - 1) * pagination.perPage + 1}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium">
+              {Math.min(
+                pagination.currentPage * pagination.perPage,
+                pagination.total
+              )}
+            </span>{" "}
+            of <span className="font-medium">{pagination.total}</span> results
+          </span>
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -281,14 +244,16 @@ const PartnersList = () => {
               >
                 1
               </button>
-              {startPage > 2 && <span className="px-2 text-gray-500">...</span>}
+              {startPage > 2 && (
+                <span className="px-2 py-2 text-sm text-gray-500">...</span>
+              )}
             </>
           )}
           {pages}
           {endPage < pagination.lastPage && (
             <>
               {endPage < pagination.lastPage - 1 && (
-                <span className="px-2 text-gray-500">...</span>
+                <span className="px-2 py-2 text-sm text-gray-500">...</span>
               )}
               <button
                 onClick={() => handlePageChange(pagination.lastPage)}
@@ -312,49 +277,24 @@ const PartnersList = () => {
 
   return (
     <div className="">
-      <div className="flex space-x-6 border-b border-gray-200 pb-1">
-        <button
-          onClick={() => setActiveTab("approved")}
-          className={`py-4 px-6 text-sm font-medium ${
-            activeTab === "approved"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-          }`}
-        >
-          Approved Partners
-        </button>
-        <button
-          onClick={() => setActiveTab("pending")}
-          className={`py-4 px-6 text-sm font-medium ${
-            activeTab === "pending"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-          }`}
-        >
-          Pending Partners
-        </button>
-      </div>
-
       {loading ? (
         <Loader size="large" fullScreen />
       ) : (
         <div>
           <DataTable
-            title="Partners Management"
-            subtitle={`${
-              activeTab === "pending" ? "Pending" : "Approved"
-            } Partners List`}
+            title="Customer Management"
+            subtitle="Customers List"
             columns={columns}
-            data={partners}
+            data={customers}
             loading={loading}
             error={error}
             onRowClick={handleRowClick}
           />
-          {!error && partners.length > 0 && renderPagination()}
+          {!error && customers.length > 0 && renderPagination()}
         </div>
       )}
     </div>
   );
 };
 
-export default PartnersList;
+export default CustomersList;
