@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDebounce } from "use-debounce";
 import {
   getPendingPartners,
   getPartners,
@@ -25,6 +26,11 @@ const PartnersList = () => {
   });
   const { token } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 2000);
 
   const columns = [
     {
@@ -176,8 +182,8 @@ const PartnersList = () => {
       setLoading(true);
       const data =
         activeTab === "pending"
-          ? await getPendingPartners(token, page)
-          : await getPartners(token, page);
+          ? await getPendingPartners(token, page, debouncedSearchTerm)
+          : await getPartners(token, page, undefined, debouncedSearchTerm);
 
       if (data.status && data.data) {
         setPartners(data.data.data);
@@ -201,6 +207,12 @@ const PartnersList = () => {
     fetchPartners(1);
   }, [token, activeTab]);
 
+  // Refetch on debounced search changes
+  useEffect(() => {
+    fetchPartners(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
+
   const handleStatusUpdate = async (partnerId, status) => {
     try {
       await updatePartnerStatus(token, partnerId, status);
@@ -221,6 +233,17 @@ const PartnersList = () => {
     if (row && row.id) {
       navigate(`/partners/${row.id}`);
     }
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("search", value);
+    } else {
+      newSearchParams.delete("search");
+    }
+    setSearchParams(newSearchParams);
   };
 
   const renderPagination = () => {
@@ -349,6 +372,10 @@ const PartnersList = () => {
             loading={loading}
             error={error}
             onRowClick={handleRowClick}
+            searchable={true}
+            searchPlaceholder={`Search ${activeTab} partners...`}
+            externalSearchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
           />
           {!error && partners.length > 0 && renderPagination()}
         </div>

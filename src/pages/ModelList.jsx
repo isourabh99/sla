@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useDebounce } from "use-debounce";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiEdit2, FiX, FiUploadCloud, FiDownload } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
@@ -31,9 +32,7 @@ const ModelList = () => {
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(
-    searchParams.get("search") || ""
-  );
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 2000);
   const [editFormData, setEditFormData] = useState({
     name: "",
     price: "",
@@ -255,14 +254,7 @@ const ModelList = () => {
     fetchBrands();
   }, [token]);
 
-  // Debounce search term
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 500); // 500ms delay
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  // Debounce handled by useDebounce
 
   // Handle debounced search changes
   useEffect(() => {

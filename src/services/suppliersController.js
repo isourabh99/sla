@@ -3,13 +3,14 @@ import config from "../config";
 
 const BASE_URL = config.api.baseUrl;
 
-export async function getPendingSuppliers(token, page = 1) {
+export async function getPendingSuppliers(token, page = 1, search = "") {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/supplier/getPendingSuppliers`,
       {
         params: {
           page: page,
+          search: search,
         },
         headers: {
           "Content-Type": "application/json",
@@ -26,13 +27,14 @@ export async function getPendingSuppliers(token, page = 1) {
   }
 }
 
-export async function getApprovedSuppliers(token, page = 1) {
+export async function getApprovedSuppliers(token, page = 1, search = "") {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/supplier/getSuppliers`,
       {
         params: {
           page: page,
+          search: search,
         },
         headers: {
           "Content-Type": "application/json",

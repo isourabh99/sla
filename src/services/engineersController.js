@@ -3,13 +3,14 @@ import config from "../config";
 
 const BASE_URL = config.api.baseUrl;
 
-export async function getPendingEngineers(token, page = 1) {
+export async function getPendingEngineers(token, page = 1, search = "") {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/engineer/getPendingEngineers`,
       {
         params: {
           page: page,
+          search: search,
         },
         headers: {
           "Content-Type": "application/json",
@@ -26,7 +27,12 @@ export async function getPendingEngineers(token, page = 1) {
   }
 }
 
-export async function getApprovedEngineers(token, page = 1, quotationId) {
+export async function getApprovedEngineers(
+  token,
+  page = 1,
+  quotationId,
+  search = ""
+) {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/engineer/getEngineers`,
@@ -34,6 +40,7 @@ export async function getApprovedEngineers(token, page = 1, quotationId) {
         params: {
           page: page,
           quotation_id: quotationId,
+          search: search,
         },
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDebounce } from "use-debounce";
 import {
   getPendingEngineers,
   getApprovedEngineers,
@@ -27,6 +28,11 @@ const EngineersList = () => {
   const fileInputRef = React.useRef(null);
   const { token } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 2000);
 
   const columns = [
     {
@@ -179,8 +185,13 @@ const EngineersList = () => {
       setLoading(true);
       const data =
         activeTab === "pending"
-          ? await getPendingEngineers(token, page)
-          : await getApprovedEngineers(token, page);
+          ? await getPendingEngineers(token, page, debouncedSearchTerm)
+          : await getApprovedEngineers(
+              token,
+              page,
+              undefined,
+              debouncedSearchTerm
+            );
 
       if (data.status && data.data) {
         setEngineers(data.data.data);
@@ -203,6 +214,12 @@ const EngineersList = () => {
   useEffect(() => {
     fetchEngineers(1);
   }, [token, activeTab]);
+
+  // Refetch on debounced search changes
+  useEffect(() => {
+    fetchEngineers(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
 
   // Debug useEffect
   useEffect(() => {
@@ -338,6 +355,17 @@ const EngineersList = () => {
     if (row && row.id) {
       navigate(`/engineers/${row.id}`);
     }
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("search", value);
+    } else {
+      newSearchParams.delete("search");
+    }
+    setSearchParams(newSearchParams);
   };
 
   const renderPagination = () => {
@@ -510,6 +538,10 @@ const EngineersList = () => {
             loading={loading}
             error={error}
             onRowClick={handleRowClick}
+            searchable={true}
+            searchPlaceholder={`Search ${activeTab} engineers...`}
+            externalSearchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
           />
           {!error && engineers.length > 0 && renderPagination()}
         </div>

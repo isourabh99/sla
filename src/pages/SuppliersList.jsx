@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDebounce } from "use-debounce";
 import {
   getPendingSuppliers,
   getApprovedSuppliers,
@@ -22,6 +23,11 @@ const SuppliersList = () => {
     perPage: 10,
     total: 0,
   });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 2000);
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -99,11 +105,13 @@ const SuppliersList = () => {
       label: "Description",
       render: (row) => (
         <div>
-          <div className="text-sm text-gray-900 text-ellipsis overflow-hidden  max-w-[100px]">{row.description || "N/A  "}</div>
+          <div className="text-sm text-gray-900 text-ellipsis overflow-hidden  max-w-[100px]">
+            {row.description || "N/A  "}
+          </div>
         </div>
       ),
     },
-  
+
     {
       key: "status",
       label: "Status",
@@ -174,8 +182,8 @@ const SuppliersList = () => {
       setLoading(true);
       const data =
         activeTab === "pending"
-          ? await getPendingSuppliers(token, page)
-          : await getApprovedSuppliers(token, page);
+          ? await getPendingSuppliers(token, page, debouncedSearchTerm)
+          : await getApprovedSuppliers(token, page, debouncedSearchTerm);
 
       if (data.status && data.data) {
         setSuppliers(data.data.data);
@@ -199,6 +207,12 @@ const SuppliersList = () => {
     fetchSuppliers(1);
   }, [token, activeTab]);
 
+  // Refetch on debounced search changes
+  useEffect(() => {
+    fetchSuppliers(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
+
   const handleStatusUpdate = async (supplierId, status) => {
     try {
       await updateSupplierStatus(token, supplierId, status);
@@ -213,6 +227,17 @@ const SuppliersList = () => {
     if (newPage >= 1 && newPage <= pagination.lastPage) {
       fetchSuppliers(newPage);
     }
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("search", value);
+    } else {
+      newSearchParams.delete("search");
+    }
+    setSearchParams(newSearchParams);
   };
 
   const handleRowClick = (row) => {
@@ -347,6 +372,10 @@ const SuppliersList = () => {
             loading={loading}
             error={error}
             onRowClick={handleRowClick}
+            searchable={true}
+            searchPlaceholder={`Search ${activeTab} suppliers...`}
+            externalSearchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
           />
           {!error && suppliers.length > 0 && renderPagination()}
         </div>

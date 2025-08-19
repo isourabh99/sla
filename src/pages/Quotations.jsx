@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDebounce } from "use-debounce";
 import { getQuotations } from "../services/quotationController";
 import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
@@ -20,6 +21,11 @@ const Quotations = () => {
   });
   const { token } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 2000);
 
   const columns = [
     {
@@ -154,16 +160,56 @@ const Quotations = () => {
   const fetchQuotations = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await getQuotations(token, page);
-      if (response.status && response.data) {
-        setQuotations(response.data.data);
-        setPagination({
-          current_page: response.data.current_page,
-          last_page: response.data.last_page,
-          per_page: response.data.per_page,
-          total: response.data.total,
-          links: response.data.links,
-        });
+
+      // If searching, fetch all pages and combine results
+      if (debouncedSearchTerm) {
+        const firstPage = await getQuotations(token, 1, debouncedSearchTerm);
+        if (firstPage.status && firstPage.data) {
+          const firstData = firstPage.data.data || [];
+          const lastPage = firstPage.data.last_page || 1;
+
+          if (lastPage > 1) {
+            const pagePromises = [];
+            for (let p = 2; p <= lastPage; p++) {
+              pagePromises.push(getQuotations(token, p, debouncedSearchTerm));
+            }
+            const restResponses = await Promise.all(pagePromises);
+            const restData = restResponses.flatMap(
+              (res) => res.data?.data || []
+            );
+            const allData = [...firstData, ...restData];
+            setQuotations(allData);
+            setPagination({
+              current_page: 1,
+              last_page: 1,
+              per_page: allData.length,
+              total: allData.length,
+              links: [],
+            });
+          } else {
+            setQuotations(firstData);
+            setPagination({
+              current_page: 1,
+              last_page: 1,
+              per_page: firstData.length,
+              total: firstData.length,
+              links: [],
+            });
+          }
+        }
+      } else {
+        // Normal paginated fetch when no search term
+        const response = await getQuotations(token, page, "");
+        if (response.status && response.data) {
+          setQuotations(response.data.data);
+          setPagination({
+            current_page: response.data.current_page,
+            last_page: response.data.last_page,
+            per_page: response.data.per_page,
+            total: response.data.total,
+            links: response.data.links,
+          });
+        }
       }
       setError(null);
     } catch (err) {
@@ -178,6 +224,12 @@ const Quotations = () => {
     fetchQuotations(1);
   }, [token]);
 
+  // Refetch on debounced search changes
+  useEffect(() => {
+    fetchQuotations(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
+
   const handlePageChange = (page) => {
     fetchQuotations(page);
   };
@@ -188,22 +240,61 @@ const Quotations = () => {
     }
   };
 
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("search", value);
+    } else {
+      newSearchParams.delete("search");
+    }
+    setSearchParams(newSearchParams);
+  };
+
   const renderPagination = () => {
-    const pages = [];
-    for (let i = 1; i <= pagination.last_page; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 rounded ${
-            pagination.current_page === i
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-        >
-          {i}
-        </button>
-      );
+    const lastPage = pagination.last_page || 1;
+    const current = pagination.current_page || 1;
+
+    const createPageButton = (i) => (
+      <button
+        key={`p-${i}`}
+        onClick={() => handlePageChange(i)}
+        className={`px-3 py-1 rounded ${
+          current === i
+            ? "bg-blue-500 text-white"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+        }`}
+      >
+        {i}
+      </button>
+    );
+
+    const pageButtons = [];
+    if (lastPage <= 4) {
+      for (let i = 1; i <= lastPage; i++) {
+        pageButtons.push(createPageButton(i));
+      }
+    } else {
+      const pagesToShow = [1, 2, lastPage - 1, lastPage]
+        .filter(
+          (v, idx, arr) => v >= 1 && v <= lastPage && arr.indexOf(v) === idx
+        )
+        .sort((a, b) => a - b);
+
+      for (let idx = 0; idx < pagesToShow.length; idx++) {
+        const p = pagesToShow[idx];
+        pageButtons.push(createPageButton(p));
+        if (idx < pagesToShow.length - 1) {
+          const nextP = pagesToShow[idx + 1];
+          if (nextP !== p + 1) {
+            pageButtons.push(
+              <span key={`e-${p}`} className="px-2 text-gray-500">
+                ...
+              </span>
+            );
+          }
+        }
+      }
     }
 
     return (
@@ -218,16 +309,16 @@ const Quotations = () => {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => handlePageChange(pagination.current_page - 1)}
-            disabled={pagination.current_page === 1}
+            onClick={() => handlePageChange(current - 1)}
+            disabled={current === 1}
             className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
-          {pages}
+          {pageButtons}
           <button
-            onClick={() => handlePageChange(pagination.current_page + 1)}
-            disabled={pagination.current_page === pagination.last_page}
+            onClick={() => handlePageChange(current + 1)}
+            disabled={current === lastPage}
             className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
@@ -245,14 +336,25 @@ const Quotations = () => {
         <>
           <DataTable
             title="Quotation Management"
-            subtitle="Quotation List"
+            subtitle={
+              debouncedSearchTerm
+                ? `Search results for "${debouncedSearchTerm}" (${quotations.length})`
+                : "Quotation List"
+            }
             columns={columns}
             data={quotations}
             loading={loading}
             error={error}
             onRowClick={handleViewClick}
+            searchable={true}
+            searchPlaceholder="Search quotations..."
+            externalSearchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
           />
-          {!error && quotations.length > 0 && renderPagination()}
+          {!error &&
+            quotations.length > 0 &&
+            !debouncedSearchTerm &&
+            renderPagination()}
         </>
       )}
     </div>

@@ -14,7 +14,7 @@ const DataTable = ({
   className = "",
   searchable = true,
   searchPlaceholder = "Search...",
-  externalSearchTerm = "",
+  externalSearchTerm,
   onSearchChange,
 }) => {
   const [internalSearchTerm, setInternalSearchTerm] = useState("");

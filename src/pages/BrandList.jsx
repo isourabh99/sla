@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDebounce } from "use-debounce";
 import { getSLA, deleteSLA, updateSLA } from "../services/brandController";
 import { useNavigate, Link } from "react-router-dom";
 import { FaPlus, FaTrash } from "react-icons/fa";
@@ -18,7 +19,7 @@ const BrandList = () => {
     perPage: 10,
   });
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 2000);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -30,13 +31,7 @@ const BrandList = () => {
   });
   const [editLoading, setEditLoading] = useState(false);
 
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  // Debounce handled by useDebounce
 
   const fetchBrands = async (page = 1, search = "") => {
     try {

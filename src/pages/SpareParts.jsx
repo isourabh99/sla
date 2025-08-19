@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useDebounce } from "use-debounce";
 import {
   getSupplierSpareParts,
   getCustomerSpareParts,
@@ -30,9 +31,7 @@ const SpareParts = () => {
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(
-    searchParams.get("search") || ""
-  );
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 2000);
   const { token, user } = useAuth();
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -45,14 +44,6 @@ const SpareParts = () => {
   useEffect(() => {
     fetchSpareParts(1);
   }, [token, activeTab]);
-
-  // Debounce search term (like ModelList)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
 
   // Refetch on debounced search change
   useEffect(() => {
@@ -190,21 +181,49 @@ const SpareParts = () => {
   }, [activeTab]);
 
   const renderPagination = () => {
-    const pages = [];
-    for (let i = 1; i <= pagination.last_page; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 rounded ${
-            pagination.current_page === i
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-        >
-          {i}
-        </button>
-      );
+    const lastPage = pagination.last_page || 1;
+    const current = pagination.current_page || 1;
+
+    const createPageButton = (i) => (
+      <button
+        key={`p-${i}`}
+        onClick={() => handlePageChange(i)}
+        className={`px-3 py-1 rounded ${
+          current === i
+            ? "bg-blue-500 text-white"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+        }`}
+      >
+        {i}
+      </button>
+    );
+
+    const pageButtons = [];
+    if (lastPage <= 4) {
+      for (let i = 1; i <= lastPage; i++) {
+        pageButtons.push(createPageButton(i));
+      }
+    } else {
+      const pagesToShow = [1, 2, lastPage - 1, lastPage]
+        .filter(
+          (v, idx, arr) => v >= 1 && v <= lastPage && arr.indexOf(v) === idx
+        )
+        .sort((a, b) => a - b);
+
+      for (let idx = 0; idx < pagesToShow.length; idx++) {
+        const p = pagesToShow[idx];
+        pageButtons.push(createPageButton(p));
+        if (idx < pagesToShow.length - 1) {
+          const nextP = pagesToShow[idx + 1];
+          if (nextP !== p + 1) {
+            pageButtons.push(
+              <span key={`e-${p}`} className="px-2 text-gray-500">
+                ...
+              </span>
+            );
+          }
+        }
+      }
     }
 
     return (
@@ -219,16 +238,16 @@ const SpareParts = () => {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => handlePageChange(pagination.current_page - 1)}
-            disabled={pagination.current_page === 1}
+            onClick={() => handlePageChange(current - 1)}
+            disabled={current === 1}
             className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
-          {pages}
+          {pageButtons}
           <button
-            onClick={() => handlePageChange(pagination.current_page + 1)}
-            disabled={pagination.current_page === pagination.last_page}
+            onClick={() => handlePageChange(current + 1)}
+            disabled={current === lastPage}
             className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next

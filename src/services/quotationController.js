@@ -4,7 +4,7 @@ import config from "../config";
 const BASE_URL = config.api.baseUrl;
 
 // Get all quotations
-export const getQuotations = async (token, page = 1) => {
+export const getQuotations = async (token, page = 1, search = "", perPage) => {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/quotation/getQuotations`,
@@ -14,6 +14,8 @@ export const getQuotations = async (token, page = 1) => {
         },
         params: {
           page: page,
+          search: search,
+          ...(perPage ? { per_page: perPage } : {}),
         },
       }
     );

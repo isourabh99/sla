@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDebounce } from "use-debounce";
 import { FiEdit2 } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
 import {
@@ -30,6 +31,11 @@ const ExpertiseList = () => {
   });
   const { token } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 2000);
 
   const columns = [
     {
@@ -104,7 +110,12 @@ const ExpertiseList = () => {
   const fetchExpertise = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await getExpertise(token, page, pagination.perPage);
+      const response = await getExpertise(
+        token,
+        page,
+        pagination.perPage,
+        debouncedSearchTerm
+      );
       console.log("API Response:", response);
       const expertiseData = response.data?.data || response.data || [];
       setExpertise(expertiseData);
@@ -127,6 +138,12 @@ const ExpertiseList = () => {
   useEffect(() => {
     fetchExpertise(1);
   }, [token]);
+
+  // Refetch on debounced search changes
+  useEffect(() => {
+    fetchExpertise(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
 
   const handlePageChange = (newPage) => {
     if (
@@ -202,6 +219,17 @@ const ExpertiseList = () => {
     }
   };
 
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("search", value);
+    } else {
+      newSearchParams.delete("search");
+    }
+    setSearchParams(newSearchParams);
+  };
+
   const renderPagination = () => {
     const pages = [];
     for (let i = 1; i <= pagination.lastPage; i++) {
@@ -264,6 +292,10 @@ const ExpertiseList = () => {
             data={expertise}
             loading={loading}
             error={error}
+            searchable={true}
+            searchPlaceholder="Search expertise..."
+            externalSearchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
           />
           {!error && expertise.length === 0 && pagination.total === 0 && (
             <div className="text-center py-8 text-gray-500">
