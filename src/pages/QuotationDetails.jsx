@@ -920,30 +920,32 @@ const QuotationDetails = () => {
               </div>
 
               <div className="p-4">
-                {quotation.service_category && (
-                  <div className="flex justify-between items-center py-2 px-3 bg-orange-50 rounded-md mb-2">
-                    <div className="flex items-center">
-                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-900 capitalize">
-                          Service Category
-                        </span>
-                        <p className="text-xs text-gray-500 font-semibold">
-                          {quotation.service_category}{" "}
-                          {quotation.service_Category_type_price}$ ×{" "}
-                          {quotation.estimated_Working_days || 1} days
-                        </p>
+                {quotation.service_category &&
+                  quotation.service_Category_type_price &&
+                  parseFloat(quotation.service_Category_type_price) > 0 && (
+                    <div className="flex justify-between items-center py-2 px-3 bg-orange-50 rounded-md mb-2">
+                      <div className="flex items-center">
+                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-900 capitalize">
+                            Service Category
+                          </span>
+                          <p className="text-xs text-gray-500 font-semibold">
+                            {quotation.service_category}{" "}
+                            {quotation.service_Category_type_price}$ ×{" "}
+                            {quotation.estimated_Working_days || 1} days
+                          </p>
+                        </div>
                       </div>
+                      <span className="text-sm font-semibold text-orange-700">
+                        +$
+                        {(
+                          parseFloat(quotation.service_Category_type_price) *
+                          parseFloat(quotation.estimated_Working_days || 1)
+                        ).toLocaleString()}
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold text-orange-700">
-                      +$
-                      {(
-                        parseFloat(quotation.service_Category_type_price || 0) *
-                        parseFloat(quotation.estimated_Working_days || 1)
-                      ).toLocaleString()}
-                    </span>
-                  </div>
-                )}
+                  )}
                 {/* Base Amount */}
                 <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-md border border-gray-200">
                   <div className="flex items-center">
@@ -971,126 +973,132 @@ const QuotationDetails = () => {
                   quotation.support_type ||
                   quotation.slatype) && (
                   <div className="mt-3 space-y-2">
-                    {quotation.service_type && (
-                      <div className="flex justify-between items-center py-2 px-3 bg-blue-50 rounded-md">
-                        <div className="flex items-center">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
-                          <p className="text-sm font-medium text-gray-900 capitalize">
-                            Service Type
-                          </p>
-                          <p className="text-xs text-gray-500 font-semibold ml-2">
-                            {`(${quotation.service_type})`}
-                          </p>
-                        </div>
-                        <span className="text-sm font-semibold text-blue-700">
-                          +$
-                          {parseFloat(
-                            quotation.service_type_price || 0
-                          ).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-
-                    {quotation.support_type && (
-                      <div className="flex justify-between items-center py-2 px-3 bg-green-50 rounded-md">
-                        <div className="flex items-center">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                          <p className="text-sm font-medium text-gray-900 capitalize">
-                            Support Type
-                          </p>
-                          <p className="text-xs text-gray-500 font-semibold ml-2">
-                            {`(${quotation.support_type})`}
-                          </p>
-                        </div>
-                        <span className="text-sm font-semibold text-green-700">
-                          +$
-                          {parseFloat(
-                            quotation.support_type_price || 0
-                          ).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-
-                    {quotation.slatype && (
-                      <div className="flex justify-between items-center py-2 px-3 bg-purple-50 rounded-md">
-                        <div className="flex items-center">
-                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
-                          <span className="text-sm font-medium text-gray-900">
-                            SLA Percentage
-                          </span>
-                          <p className="text-xs text-gray-500 font-semibold ml-2">
-                            {`(${quotation.slatype.percentage}%)`}
-                          </p>
-                        </div>
-                        <span className="text-sm font-semibold text-purple-700">
-                          $
-                          {(
-                            quotation.estimated_amount *
-                            (quotation.slatype.percentage / 100)
-                          ).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-
-                    {quotation.country && quotation.country_percentage && (
-                      <div className="flex justify-between items-center py-2 px-3 bg-red-50 rounded-md">
-                        <div className="flex items-center">
-                          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-900 capitalize">
-                              Country tax
-                            </span>
-                            <p className="text-xs text-gray-500 font-semibold">
-                              {quotation.country} (
-                              {quotation.country_percentage}%)
+                    {/* Service Type */}
+                    {quotation.service_type &&
+                      quotation.service_type_price &&
+                      parseFloat(quotation.service_type_price) > 0 && (
+                        <div className="flex justify-between items-center py-2 px-3 bg-blue-50 rounded-md">
+                          <div className="flex items-center">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            <p className="text-sm font-medium text-gray-900 capitalize">
+                              Service Type
+                            </p>
+                            <p className="text-xs text-gray-500 font-semibold ml-2">
+                              {`(${quotation.service_type})`}
                             </p>
                           </div>
+                          <span className="text-sm font-semibold text-blue-700">
+                            +$
+                            {parseFloat(
+                              quotation.service_type_price
+                            ).toLocaleString()}
+                          </span>
                         </div>
-                        <span className="text-sm font-semibold text-red-700">
-                          {quotation.quotation_type === "maintenance" && (
-                            <>
-                              $
-                              {(
-                                (parseFloat(quotation.estimated_amount || 0) +
-                                  parseFloat(
-                                    quotation.service_type_price || 0
-                                  ) +
-                                  parseFloat(
-                                    quotation.support_type_price || 0
-                                  ) +
-                                  parseFloat(quotation.estimated_amount || 0) *
-                                    (parseFloat(
-                                      quotation.slatype?.percentage || 0
-                                    ) /
-                                      100)) *
-                                (parseFloat(quotation.country_percentage || 0) /
-                                  100)
-                              ).toLocaleString()}
-                            </>
-                          )}
-                          {
-                            quotation.quotation_type === "software_cloud" && (
-                              <>
-                                $
-                                {parseFloat(quotation.estimated_amount || 0) *
-                                  (parseFloat(quotation.country_percentage || 0) /
-                                    100)}
-                              </> 
-                            ) 
-                          }
-                          {
-                            quotation.quotation_type === "professional_service" && (
-                              <>
-                                $
-                                {parseFloat(quotation.estimated_amount || 0) *
-                                  (parseFloat(quotation.country_percentage || 0) /
-                                    100)}
-                              </>
-                            )
-                          }
-                        </span>
-                      </div>
-                    )}
+                      )}
+
+                    {/* Support Type */}
+                    {quotation.support_type &&
+                      quotation.support_type_price &&
+                      parseFloat(quotation.support_type_price) > 0 && (
+                        <div className="flex justify-between items-center py-2 px-3 bg-green-50 rounded-md">
+                          <div className="flex items-center">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                            <p className="text-sm font-medium text-gray-900 capitalize">
+                              Support Type
+                            </p>
+                            <p className="text-xs text-gray-500 font-semibold ml-2">
+                              {`(${quotation.support_type})`}
+                            </p>
+                          </div>
+                          <span className="text-sm font-semibold text-green-700">
+                            +$
+                            {parseFloat(
+                              quotation.support_type_price
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                    {/* SLA Percentage */}
+                    {quotation.slatype?.percentage &&
+                      parseFloat(quotation.slatype.percentage) > 0 && (
+                        <div className="flex justify-between items-center py-2 px-3 bg-purple-50 rounded-md">
+                          <div className="flex items-center">
+                            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
+                            <span className="text-sm font-medium text-gray-900">
+                              SLA Percentage
+                            </span>
+                            <p className="text-xs text-gray-500 font-semibold ml-2">
+                              {`(${quotation.slatype.percentage}%)`}
+                            </p>
+                          </div>
+                          <span className="text-sm font-semibold text-purple-700">
+                            $
+                            {(
+                              quotation.estimated_amount *
+                              (quotation.slatype.percentage / 100)
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                    {/* Country Tax */}
+                    {(() => {
+                      const baseAmount = parseFloat(
+                        quotation.estimated_amount || 0
+                      );
+                      const servicePrice = parseFloat(
+                        quotation.service_type_price || 0
+                      );
+                      const supportPrice = parseFloat(
+                        quotation.support_type_price || 0
+                      );
+                      const slaAmount =
+                        baseAmount *
+                        (parseFloat(quotation.slatype?.percentage || 0) / 100);
+                      const countryTaxRate =
+                        parseFloat(quotation.country_percentage || 0) / 100;
+
+                      let taxableAmount = 0;
+
+                      if (quotation.quotation_type === "maintenance") {
+                        taxableAmount =
+                          (baseAmount +
+                            servicePrice +
+                            supportPrice +
+                            slaAmount) *
+                          countryTaxRate;
+                      } else if (
+                        quotation.quotation_type === "software_cloud"
+                      ) {
+                        taxableAmount = baseAmount * countryTaxRate;
+                      } else if (
+                        quotation.quotation_type === "professional_service"
+                      ) {
+                        taxableAmount = countryTaxRate;
+                      }
+
+                      // Show country tax section if country exists, even if percentage is 0
+                      return quotation.country ? (
+                        <div className="flex justify-between items-center py-2 px-3 bg-red-50 rounded-md">
+                          <div className="flex items-center">
+                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
+                            <div>
+                              <span className="text-sm font-medium text-gray-900 capitalize">
+                                Country tax
+                              </span>
+                              <p className="text-xs text-gray-500 font-semibold">
+                                {quotation.country} (
+                                {quotation.country_percentage}%)
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-sm font-semibold text-red-700">
+                            ${taxableAmount.toLocaleString()}
+                          </span>
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 )}
 

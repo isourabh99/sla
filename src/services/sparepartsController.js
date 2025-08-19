@@ -4,7 +4,7 @@ import config from "../config";
 const BASE_URL = config.api.baseUrl;
 
 // Fetch spare parts added by suppliers
-export async function getSupplierSpareParts(token, page = 1) {
+export async function getSupplierSpareParts(token, page = 1, search = "") {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/supplier/all/SpearPartDetails`,
@@ -15,6 +15,7 @@ export async function getSupplierSpareParts(token, page = 1) {
         },
         params: {
           page: page,
+          search: search,
         },
       }
     );
@@ -27,7 +28,7 @@ export async function getSupplierSpareParts(token, page = 1) {
 }
 
 // Fetch spare parts added by customers
-export async function getCustomerSpareParts(token, page = 1) {
+export async function getCustomerSpareParts(token, page = 1, search = "") {
   try {
     const response = await axios.get(
       `${BASE_URL}/admin/supplier/all/User/SpearPartDetails`,
@@ -38,6 +39,7 @@ export async function getCustomerSpareParts(token, page = 1) {
         },
         params: {
           page: page,
+          search: search,
         },
       }
     );

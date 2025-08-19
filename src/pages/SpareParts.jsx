@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   getSupplierSpareParts,
   getCustomerSpareParts,
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 import { FiEdit2 } from "react-icons/fi";
 
 const SpareParts = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("supplier");
   const [supplierSpareParts, setSupplierSpareParts] = useState([]);
   const [customerSpareParts, setCustomerSpareParts] = useState([]);
@@ -25,6 +27,12 @@ const SpareParts = () => {
     price: "",
   });
   const [updating, setUpdating] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
   const { token, user } = useAuth();
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -38,15 +46,37 @@ const SpareParts = () => {
     fetchSpareParts(1);
   }, [token, activeTab]);
 
+  // Debounce search term (like ModelList)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Refetch on debounced search change
+  useEffect(() => {
+    // Reset to page 1 when search changes
+    fetchSpareParts(1);
+  }, [debouncedSearchTerm]);
+
   const fetchSpareParts = async (page = 1) => {
     try {
       setLoading(true);
       let response;
 
       if (activeTab === "supplier") {
-        response = await getSupplierSpareParts(token, page);
+        response = await getSupplierSpareParts(
+          token,
+          page,
+          debouncedSearchTerm
+        );
       } else {
-        response = await getCustomerSpareParts(token, page);
+        response = await getCustomerSpareParts(
+          token,
+          page,
+          debouncedSearchTerm
+        );
       }
 
       let sparePartsData = [];
@@ -142,6 +172,17 @@ const SpareParts = () => {
 
   const handlePageChange = (page) => {
     fetchSpareParts(page);
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("search", value);
+    } else {
+      newSearchParams.delete("search");
+    }
+    setSearchParams(newSearchParams);
   };
 
   useEffect(() => {
@@ -326,13 +367,21 @@ const SpareParts = () => {
         <>
           <DataTable
             title="Spare Parts Management"
-            subtitle={`${
-              activeTab === "supplier" ? "Supplier" : "Customer"
-            } Spare Parts List`}
+            subtitle={
+              debouncedSearchTerm
+                ? `Search results for "${debouncedSearchTerm}"`
+                : `${
+                    activeTab === "supplier" ? "Supplier" : "Customer"
+                  } Spare Parts List`
+            }
             columns={columns}
             data={currentData}
             loading={loading}
             error={error}
+            searchable={true}
+            searchPlaceholder={`Search ${activeTab} spare parts...`}
+            externalSearchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
           />
           {!error && currentData.length > 0 && renderPagination()}
         </>
