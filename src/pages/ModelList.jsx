@@ -16,6 +16,7 @@ import { useAuth } from "../context/AuthContext";
 import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
 import { toast } from "sonner";
+import modelsSampleXlsx from "../assets/modelssample.xlsx";
 
 const ModelList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -658,9 +659,7 @@ const ModelList = () => {
           <div className="flex items-center space-x-2">
             <button
               type="button"
-              onClick={() =>
-                window.open("/src/assets/modelssample.xlsx", "_blank")
-              }
+              onClick={() => window.open(modelsSampleXlsx, "_blank")}
               className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-all duration-200 shadow-sm"
             >
               <FiDownload className="w-3.5 h-3.5 mr-1.5" />
@@ -763,9 +762,7 @@ const ModelList = () => {
               </p>
               <button
                 type="button"
-                onClick={() =>
-                  window.open("/src/assets/modelssample.xlsx", "_blank")
-                }
+                onClick={() => window.open(modelsSampleXlsx, "_blank")}
                 className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-100 rounded hover:bg-blue-200 transition-colors w-max"
               >
                 <FiDownload className="w-4 h-4" /> Download Sample

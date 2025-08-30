@@ -12,6 +12,7 @@ import DataTable from "../components/DataTable";
 import Loader from "../components/Loader";
 import { FiEye, FiUpload, FiDownload } from "react-icons/fi";
 import { toast } from "sonner";
+import sampleEngineersXlsx from "../assets/sample.xlsx";
 
 const EngineersList = () => {
   const [activeTab, setActiveTab] = useState("approved");
@@ -329,7 +330,7 @@ const EngineersList = () => {
     try {
       // Create a link element
       const link = document.createElement("a");
-      link.href = "/src/assets/sample.xlsx";
+      link.href = sampleEngineersXlsx;
       link.download = "sample.xlsx";
       link.style.display = "none";
 
